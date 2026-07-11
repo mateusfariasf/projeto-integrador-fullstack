@@ -134,6 +134,14 @@ async function request(baseUrl, path, options = {}) {
   assert.equal(atividades.status, 200);
   assert.ok(atividades.data.some((item) => item.entidade === "nota_fiscal"));
 
+  const mockups = await request(baseUrl, "/api/mockups/seed", {
+    method: "POST",
+    headers: authHeaders
+  });
+  assert.equal(mockups.status, 201);
+  assert.equal(mockups.data.resumo.produtos, 5);
+  assert.equal(mockups.data.resumo.fornecedores, 3);
+
   console.log("Smoke test concluido com sucesso.");
 })()
   .catch((error) => {

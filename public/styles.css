@@ -77,6 +77,11 @@ textarea {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
+  transition: grid-template-columns 180ms ease;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 78px minmax(0, 1fr);
 }
 
 .app-sidebar {
@@ -89,6 +94,13 @@ textarea {
   padding: 22px 16px;
   background: var(--sidebar);
   color: white;
+}
+
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .brand,
@@ -114,6 +126,31 @@ textarea {
 .brand strong {
   display: block;
   margin-top: 2px;
+}
+
+.brand-text,
+.nav-label,
+.user-card div,
+.status {
+  transition: opacity 160ms ease, width 160ms ease;
+}
+
+.sidebar-toggle {
+  display: grid;
+  width: 38px;
+  min-height: 38px;
+  place-items: center;
+  gap: 3px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-toggle span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: white;
 }
 
 .eyebrow {
@@ -144,10 +181,162 @@ button {
 }
 
 .tab {
+  display: flex;
   width: 100%;
+  align-items: center;
   justify-content: flex-start;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.1);
   text-align: left;
+}
+
+.nav-icon {
+  position: relative;
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  place-items: center;
+}
+
+.box-icon {
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}
+
+.box-icon::before {
+  content: "";
+  width: 10px;
+  border-top: 2px solid currentColor;
+}
+
+.supplier-icon::before,
+.supplier-icon::after {
+  content: "";
+  position: absolute;
+  border: 2px solid currentColor;
+}
+
+.supplier-icon::before {
+  inset: 4px 3px 2px;
+  border-radius: 2px;
+}
+
+.supplier-icon::after {
+  width: 6px;
+  height: 6px;
+  top: 1px;
+  border-radius: 1px;
+}
+
+.link-icon::before,
+.link-icon::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+}
+
+.link-icon::before {
+  left: 0;
+  transform: rotate(-30deg);
+}
+
+.link-icon::after {
+  right: 0;
+  transform: rotate(-30deg);
+}
+
+.chart-icon {
+  align-items: end;
+  grid-template-columns: repeat(3, 4px);
+  gap: 2px;
+}
+
+.chart-icon::before,
+.chart-icon::after,
+.chart-icon {
+  color: inherit;
+}
+
+.chart-icon::before,
+.chart-icon::after {
+  content: "";
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.chart-icon::before {
+  height: 12px;
+}
+
+.chart-icon::after {
+  height: 17px;
+}
+
+.chart-icon {
+  background: linear-gradient(currentColor, currentColor) left bottom / 4px 8px no-repeat;
+}
+
+.logout-icon::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right: 0;
+  border-radius: 3px;
+}
+
+.logout-icon::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 10px;
+  border-top: 2px solid currentColor;
+}
+
+.app-shell.sidebar-collapsed .app-sidebar {
+  align-items: center;
+  padding-inline: 12px;
+}
+
+.app-shell.sidebar-collapsed .sidebar-head,
+.app-shell.sidebar-collapsed .tabs,
+.app-shell.sidebar-collapsed .sidebar-footer {
+  width: 100%;
+}
+
+.app-shell.sidebar-collapsed .brand {
+  justify-content: center;
+}
+
+.app-shell.sidebar-collapsed .brand-text,
+.app-shell.sidebar-collapsed .nav-label,
+.app-shell.sidebar-collapsed .user-card div,
+.app-shell.sidebar-collapsed .status {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-shell.sidebar-collapsed .tab,
+.app-shell.sidebar-collapsed #logoutButton {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.app-shell.sidebar-collapsed .user-card {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.app-shell.sidebar-collapsed .sidebar-toggle {
+  margin-inline: auto;
 }
 
 .tab.active,

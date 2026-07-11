@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -51,19 +51,38 @@
 
     <div class="app-shell hidden" id="appShell">
       <aside class="app-sidebar">
-        <div class="brand">
-          <span class="brand-mark">E</span>
-          <div>
-            <p class="eyebrow">Projeto Integrador</p>
-            <strong>Estoque</strong>
+        <div class="sidebar-head">
+          <div class="brand">
+            <span class="brand-mark">E</span>
+            <div class="brand-text">
+              <p class="eyebrow">Projeto Integrador</p>
+              <strong>Estoque</strong>
+            </div>
           </div>
+          <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Recolher menu" title="Recolher menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
 
         <nav class="tabs" aria-label="Modulos do sistema">
-          <button class="tab active" data-tab="produtos">Produtos</button>
-          <button class="tab" data-tab="fornecedores">Fornecedores</button>
-          <button class="tab" data-tab="associacoes">Associacoes</button>
-          <button class="tab" data-tab="relatorios">Relatorios</button>
+          <button class="tab active" data-tab="produtos">
+            <span class="nav-icon box-icon" aria-hidden="true"></span>
+            <span class="nav-label">Produtos</span>
+          </button>
+          <button class="tab" data-tab="fornecedores">
+            <span class="nav-icon supplier-icon" aria-hidden="true"></span>
+            <span class="nav-label">Fornecedores</span>
+          </button>
+          <button class="tab" data-tab="associacoes">
+            <span class="nav-icon link-icon" aria-hidden="true"></span>
+            <span class="nav-label">Associacoes</span>
+          </button>
+          <button class="tab" data-tab="relatorios">
+            <span class="nav-icon chart-icon" aria-hidden="true"></span>
+            <span class="nav-label">Relatorios</span>
+          </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -75,7 +94,10 @@
               <span id="userProvider">local</span>
             </div>
           </div>
-          <button class="secondary" id="logoutButton">Sair</button>
+          <button class="secondary" id="logoutButton">
+            <span class="nav-icon logout-icon" aria-hidden="true"></span>
+            <span class="nav-label">Sair</span>
+          </button>
         </div>
       </aside>
 
@@ -352,6 +374,40 @@
           <div class="workbench report-workbench">
             <aside class="context-panel">
               <section class="context-section">
+                <h3>Mockups</h3>
+                <button type="button" id="carregarMockups">Carregar dados falsos</button>
+                <p class="muted compact-text">Popula produtos, fornecedores e associacoes para demonstracao.</p>
+              </section>
+              <section class="context-section">
+                <h3>Filtros</h3>
+                <form id="reportFilters" class="form-grid single">
+                  <label>
+                    Categoria
+                    <select name="categoria" id="reportCategoria">
+                      <option value="">Todas</option>
+                    </select>
+                  </label>
+                  <label>
+                    Estoque
+                    <select name="estoque">
+                      <option value="todos">Todos</option>
+                      <option value="baixo">Baixo estoque</option>
+                      <option value="zerado">Zerado</option>
+                      <option value="disponivel">Disponivel</option>
+                    </select>
+                  </label>
+                  <label>
+                    Preco minimo
+                    <input name="precoMin" type="number" min="0" step="0.01" placeholder="0,00" />
+                  </label>
+                  <label>
+                    Preco maximo
+                    <input name="precoMax" type="number" min="0" step="0.01" placeholder="0,00" />
+                  </label>
+                  <button type="button" class="secondary" id="limparFiltrosRelatorio">Limpar filtros</button>
+                </form>
+              </section>
+              <section class="context-section">
                 <h3>Resumo operacional</h3>
                 <div class="report-summary" id="reportSummary"></div>
               </section>
@@ -418,7 +474,7 @@
     <div class="alert-stack" id="alertStack" aria-live="polite"></div>
     <div class="success-modal hidden" id="successModal" role="dialog" aria-modal="true">
       <div class="success-card">
-        <div class="success-icon">✓</div>
+        <div class="success-icon">OK</div>
         <div>
           <p class="eyebrow" id="successKicker">Confirmacao</p>
           <h2 id="successTitle">Operacao concluida</h2>
@@ -430,3 +486,4 @@
     <script src="/app.js"></script>
   </body>
 </html>
+

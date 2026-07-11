@@ -21,9 +21,11 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Navegacao lateral com usuario logado e logout.
 - Barra superior com breadcrumb, notificacoes e historico de navegacao.
 - Rotas no navegador por hash, como `#/produtos`, `#/fornecedores` e `#/associacoes`.
+- Sidebar recolhivel com icones para cada modulo.
 - Cards flutuantes animados para erros e avisos.
 - Modal de confirmacao para cadastros, importacoes e associacoes.
-- Aba de relatorios com totais, valor estimado, categorias e baixo estoque.
+- Aba de relatorios com filtros, totais, valor estimado, categorias e baixo estoque.
+- Botao para carregar mockups diretamente pela interface.
 - Associacao e desassociacao entre produtos e fornecedores.
 - Consulta visual das associacoes produto/fornecedor.
 - Persistencia dos dados em SQLite.

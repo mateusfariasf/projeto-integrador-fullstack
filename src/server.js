@@ -167,6 +167,11 @@ async function routeApi(req, res, db, url) {
     return;
   }
 
+  if (method === "POST" && url.pathname === "/api/mockups/seed") {
+    handleMockupSeed(res, db, usuario);
+    return;
+  }
+
   sendJson(res, 404, { mensagem: "Rota nao encontrada." });
 }
 
@@ -588,6 +593,54 @@ async function handleImportacaoNota(req, res, db, usuario) {
   sendJson(res, 201, { mensagem: "Nota fiscal importada com sucesso.", resumo });
 }
 
+function handleMockupSeed(res, db, usuario) {
+  const dataPath = path.join(__dirname, "..", "sample-data", "dados-simulatorios.json");
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+  const resumo = seedMockupData(db, data, usuario.id);
+  registrarAtividade(db, {
+    tipo: "importacao",
+    entidade: "mockup",
+    entidadeId: null,
+    titulo: "Dados falsos carregados",
+    detalhe: `${resumo.produtos} produto(s), ${resumo.fornecedores} fornecedor(es), ${resumo.associacoesCriadas} associacao(oes) nova(s).`,
+    origem: "mockups",
+    usuarioId: usuario.id
+  });
+  sendJson(res, 201, { mensagem: "Dados falsos carregados com sucesso.", resumo });
+}
+
+function seedMockupData(db, data, usuarioId) {
+  const fornecedorIds = new Map();
+  const produtoIds = new Map();
+  let associacoesCriadas = 0;
+
+  for (const fornecedor of data.fornecedores || []) {
+    const id = upsertFornecedorMockup(db, fornecedor, usuarioId);
+    fornecedorIds.set(fornecedor.cnpj, id);
+  }
+
+  for (const produto of data.produtos || []) {
+    const id = upsertProdutoMockup(db, produto, usuarioId);
+    produtoIds.set(produto.codigoBarras, id);
+  }
+
+  for (const [codigoBarras, cnpj] of data.associacoes || []) {
+    const produtoId = produtoIds.get(codigoBarras) || db.prepare("SELECT id FROM produtos WHERE codigo_barras = ?").get(codigoBarras)?.id;
+    const fornecedorId = fornecedorIds.get(cnpj) || db.prepare("SELECT id FROM fornecedores WHERE cnpj = ?").get(cnpj)?.id;
+    if (!produtoId || !fornecedorId) continue;
+    const exists = db.prepare("SELECT 1 FROM produto_fornecedor WHERE produto_id = ? AND fornecedor_id = ?").get(produtoId, fornecedorId);
+    if (exists) continue;
+    db.prepare("INSERT INTO produto_fornecedor (produto_id, fornecedor_id) VALUES (?, ?)").run(produtoId, fornecedorId);
+    associacoesCriadas += 1;
+  }
+
+  return {
+    fornecedores: (data.fornecedores || []).length,
+    produtos: (data.produtos || []).length,
+    associacoesCriadas
+  };
+}
+
 function validateFornecedor(data) {
   const errors = {};
   if (!data.nomeEmpresa?.trim()) errors.nomeEmpresa = "Informe o nome da empresa.";
@@ -722,6 +775,44 @@ function upsertFornecedorImportado(db, payload, usuarioId, origem) {
     usuarioId
   });
   return { ...fornecedor, criado: true };
+}
+
+function upsertFornecedorMockup(db, item, usuarioId) {
+  const existing = db.prepare("SELECT id FROM fornecedores WHERE cnpj = ?").get(item.cnpj);
+  if (existing) return existing.id;
+  const result = db.prepare(`
+    INSERT INTO fornecedores (nome_empresa, cnpj, endereco, telefone, email, contato_principal)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(item.nomeEmpresa, item.cnpj, item.endereco, item.telefone, item.email, item.contatoPrincipal);
+  registrarAtividade(db, {
+    tipo: "cadastro",
+    entidade: "fornecedor",
+    entidadeId: result.lastInsertRowid,
+    titulo: item.nomeEmpresa,
+    detalhe: item.cnpj,
+    origem: "mockups",
+    usuarioId
+  });
+  return result.lastInsertRowid;
+}
+
+function upsertProdutoMockup(db, item, usuarioId) {
+  const existing = db.prepare("SELECT id FROM produtos WHERE codigo_barras = ?").get(item.codigoBarras);
+  if (existing) return existing.id;
+  const result = db.prepare(`
+    INSERT INTO produtos (nome, codigo_barras, descricao, preco, quantidade, categoria, data_validade, imagem)
+    VALUES (?, ?, ?, ?, ?, ?, '', '')
+  `).run(item.nome, item.codigoBarras, item.descricao, item.preco, item.quantidade, item.categoria);
+  registrarAtividade(db, {
+    tipo: "cadastro",
+    entidade: "produto",
+    entidadeId: result.lastInsertRowid,
+    titulo: item.nome,
+    detalhe: `${item.quantidade} unidade(s) - codigo ${item.codigoBarras}`,
+    origem: "mockups",
+    usuarioId
+  });
+  return result.lastInsertRowid;
 }
 
 function normalizeProdutoImportado(item, index) {

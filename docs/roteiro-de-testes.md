@@ -31,5 +31,13 @@
 ## Relatorios
 
 1. Acesse `#/relatorios`.
-2. Confira totais de produtos, fornecedores, associacoes, estoque e baixo estoque.
-3. Verifique as tabelas de categoria e produtos com baixo estoque.
+2. Clique em "Carregar dados falsos" se quiser popular a base com mockups.
+3. Confira totais de produtos, fornecedores, associacoes, estoque e baixo estoque.
+4. Use os filtros de categoria, estoque e faixa de preco.
+5. Verifique as tabelas de categoria e produtos com baixo estoque.
+
+## Navegacao
+
+1. Clique no botao da sidebar para recolher o menu.
+2. Confira se os icones continuam visiveis.
+3. Abra novamente a sidebar e navegue entre as abas.

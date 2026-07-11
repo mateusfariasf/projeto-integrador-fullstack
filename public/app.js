@@ -1,4 +1,4 @@
-const state = {
+﻿const state = {
   token: localStorage.getItem("estoqueToken") || "",
   usuario: null,
   fornecedores: [],
@@ -9,6 +9,7 @@ const state = {
   fornecedorSelecionadoId: null,
   associacaoSelecionada: null,
   currentTab: "produtos",
+  sidebarCollapsed: localStorage.getItem("estoqueSidebarCollapsed") === "true",
   routeHistory: JSON.parse(sessionStorage.getItem("estoqueRouteHistory") || "[]"),
   scannerStream: null,
   scannerLoop: 0
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
   setupAuth();
   setupForms();
+  setupSidebar();
   setupScanner();
   window.addEventListener("hashchange", () => applyRouteFromHash());
   boot();
@@ -68,11 +70,27 @@ function setupForms() {
   $("#limparProduto").addEventListener("click", () => resetProdutoForm());
   $("#produtoBusca").addEventListener("input", () => renderProdutos());
   $("#importarNotaButton").addEventListener("click", importarNotaFiscal);
+  $("#carregarMockups").addEventListener("click", carregarMockups);
+  $("#reportFilters").addEventListener("input", () => renderRelatorios());
+  $("#reportFilters").addEventListener("change", () => renderRelatorios());
+  $("#limparFiltrosRelatorio").addEventListener("click", () => {
+    $("#reportFilters").reset();
+    renderRelatorios();
+  });
   $("#atualizarRelatorios").addEventListener("click", async () => {
     await loadAll();
     showAlert("Relatorios atualizados com os dados mais recentes.", "success");
   });
   $("#successClose").addEventListener("click", closeSuccessModal);
+}
+
+function setupSidebar() {
+  applySidebarState();
+  $("#sidebarToggle").addEventListener("click", () => {
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    localStorage.setItem("estoqueSidebarCollapsed", String(state.sidebarCollapsed));
+    applySidebarState();
+  });
 }
 
 function setupScanner() {
@@ -219,6 +237,20 @@ async function importarNotaFiscal() {
     );
   } catch (error) {
     showAlert(error.message || "Nao foi possivel importar a nota fiscal.", "danger");
+  }
+}
+
+async function carregarMockups() {
+  try {
+    const result = await api("/api/mockups/seed", { method: "POST" });
+    await loadAll();
+    showSuccessModal(
+      "Mockups carregados",
+      `${result.resumo.fornecedores} fornecedor(es), ${result.resumo.produtos} produto(s) e ${result.resumo.associacoesCriadas} associacao(oes) nova(s) disponiveis para simulacao.`,
+      "Dados falsos"
+    );
+  } catch (error) {
+    showAlert(error.message || "Nao foi possivel carregar os mockups.", "danger");
   }
 }
 
@@ -438,12 +470,15 @@ function renderAtividades() {
 }
 
 function renderRelatorios() {
-  const totalProdutos = state.produtos.length;
+  renderReportCategoryOptions();
+  const produtosFiltrados = getProdutosFiltradosRelatorio();
+  const produtoIds = new Set(produtosFiltrados.map((item) => item.id));
+  const totalProdutos = produtosFiltrados.length;
   const totalFornecedores = state.fornecedores.length;
-  const totalAssociacoes = state.associacoes.length;
-  const totalUnidades = state.produtos.reduce((sum, item) => sum + Number(item.quantidade || 0), 0);
-  const valorEstoque = state.produtos.reduce((sum, item) => sum + Number(item.preco || 0) * Number(item.quantidade || 0), 0);
-  const baixoEstoque = state.produtos.filter((item) => Number(item.quantidade || 0) <= 5);
+  const totalAssociacoes = state.associacoes.filter((item) => produtoIds.has(item.produtoId)).length;
+  const totalUnidades = produtosFiltrados.reduce((sum, item) => sum + Number(item.quantidade || 0), 0);
+  const valorEstoque = produtosFiltrados.reduce((sum, item) => sum + Number(item.preco || 0) * Number(item.quantidade || 0), 0);
+  const baixoEstoque = produtosFiltrados.filter((item) => Number(item.quantidade || 0) <= 5);
 
   $("#reportCards").innerHTML = [
     ["Produtos", totalProdutos],
@@ -460,11 +495,11 @@ function renderRelatorios() {
   `).join("");
 
   $("#reportSummary").innerHTML = `
-    <p>O estoque possui <strong>${totalProdutos}</strong> produto(s), <strong>${totalFornecedores}</strong> fornecedor(es) e <strong>${totalAssociacoes}</strong> associacao(oes).</p>
+    <p>A visao filtrada possui <strong>${totalProdutos}</strong> produto(s), <strong>${totalFornecedores}</strong> fornecedor(es) e <strong>${totalAssociacoes}</strong> associacao(oes).</p>
     <p>Valor estimado em estoque: <strong>R$ ${valorEstoque.toFixed(2)}</strong>.</p>
   `;
 
-  const categorias = state.produtos.reduce((acc, item) => {
+  const categorias = produtosFiltrados.reduce((acc, item) => {
     const key = item.categoria || "Sem categoria";
     acc[key] ||= { categoria: key, produtos: 0, unidades: 0 };
     acc[key].produtos += 1;
@@ -491,6 +526,34 @@ function renderRelatorios() {
       </tr>
     `).join("")
     : `<tr><td colspan="3" class="muted">Nenhum produto com baixo estoque.</td></tr>`;
+}
+
+function renderReportCategoryOptions() {
+  const select = $("#reportCategoria");
+  if (!select) return;
+  const current = select.value;
+  const categories = [...new Set(state.produtos.map((item) => item.categoria).filter(Boolean))].sort();
+  select.innerHTML = `<option value="">Todas</option>` + categories
+    .map((categoria) => `<option value="${escapeHtml(categoria)}">${escapeHtml(categoria)}</option>`)
+    .join("");
+  if (categories.includes(current)) select.value = current;
+}
+
+function getProdutosFiltradosRelatorio() {
+  const form = $("#reportFilters");
+  if (!form) return state.produtos;
+  const data = Object.fromEntries(new FormData(form).entries());
+  return state.produtos.filter((item) => {
+    const quantidade = Number(item.quantidade || 0);
+    const preco = Number(item.preco || 0);
+    if (data.categoria && item.categoria !== data.categoria) return false;
+    if (data.estoque === "baixo" && quantidade > 5) return false;
+    if (data.estoque === "zerado" && quantidade !== 0) return false;
+    if (data.estoque === "disponivel" && quantidade <= 0) return false;
+    if (data.precoMin !== "" && preco < Number(data.precoMin)) return false;
+    if (data.precoMax !== "" && preco > Number(data.precoMax)) return false;
+    return true;
+  });
 }
 
 function renderActivityList(selector, items) {
@@ -815,6 +878,19 @@ function showApp() {
   $("#userName").textContent = name;
   $("#userProvider").textContent = state.usuario?.provedor || "local";
   $("#userAvatar").textContent = name.slice(0, 1).toUpperCase();
+  applySidebarState();
+}
+
+function applySidebarState() {
+  const shell = $("#appShell");
+  if (!shell) return;
+  shell.classList.toggle("sidebar-collapsed", state.sidebarCollapsed);
+  const toggle = $("#sidebarToggle");
+  if (toggle) {
+    const label = state.sidebarCollapsed ? "Abrir menu" : "Recolher menu";
+    toggle.title = label;
+    toggle.setAttribute("aria-label", label);
+  }
 }
 
 function fillForm(form, data) {
@@ -966,7 +1042,7 @@ function showAlert(message, type = "info") {
   item.innerHTML = `
     <strong>${escapeHtml(alertTitle(type))}</strong>
     <span>${escapeHtml(message)}</span>
-    <button type="button" aria-label="Fechar alerta">×</button>
+    <button type="button" aria-label="Fechar alerta">x</button>
   `;
   item.querySelector("button").addEventListener("click", () => dismissAlert(item));
   stack.appendChild(item);
@@ -1025,3 +1101,4 @@ window.deleteAssociacao = deleteAssociacao;
 window.selectProduto = selectProduto;
 window.selectFornecedor = selectFornecedor;
 window.selectAssociacao = selectAssociacao;
+
