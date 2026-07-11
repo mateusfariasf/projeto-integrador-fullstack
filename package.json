@@ -1,0 +1,23 @@
+{
+  "name": "projeto-integrador-fullstack",
+  "version": "1.0.0",
+  "description": "Sistema de controle de estoque para o Projeto Integrador Full Stack.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --experimental-sqlite src/server.js",
+    "dev": "node --experimental-sqlite src/server.js",
+    "test": "node --experimental-sqlite scripts/smoke-test.js",
+    "seed": "node --experimental-sqlite scripts/seed-demo-data.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "node",
+    "sqlite",
+    "estoque",
+    "fullstack"
+  ],
+  "author": "Mateu",
+  "license": "MIT"
+}

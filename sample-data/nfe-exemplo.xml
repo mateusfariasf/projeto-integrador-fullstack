@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NFe>
+  <infNFe>
+    <ide>
+      <nNF>9001</nNF>
+    </ide>
+    <emit>
+      <CNPJ>22333444000155</CNPJ>
+      <xNome>Tech Suprimentos</xNome>
+      <enderEmit>
+        <xLgr>Rua das Pecas</xLgr>
+        <nro>120</nro>
+        <xBairro>Centro</xBairro>
+        <xMun>Brasilia</xMun>
+        <UF>DF</UF>
+        <fone>6135551212</fone>
+      </enderEmit>
+    </emit>
+    <det nItem="1">
+      <prod>
+        <cProd>7891000000006</cProd>
+        <cEAN>7891000000006</cEAN>
+        <xProd>Webcam Full HD</xProd>
+        <NCM>85258029</NCM>
+        <qCom>8.0000</qCom>
+        <vUnCom>149.90</vUnCom>
+        <vProd>1199.20</vProd>
+      </prod>
+    </det>
+    <det nItem="2">
+      <prod>
+        <cProd>7891000000007</cProd>
+        <cEAN>7891000000007</cEAN>
+        <xProd>Headset USB</xProd>
+        <NCM>85183000</NCM>
+        <qCom>6.0000</qCom>
+        <vUnCom>119.90</vUnCom>
+        <vProd>719.40</vProd>
+      </prod>
+    </det>
+  </infNFe>
+</NFe>

@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Controle de Estoque</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="auth-screen" id="authScreen">
+      <section class="auth-card">
+        <p class="eyebrow">Projeto Integrador Full Stack</p>
+        <h1>Sistema de Controle de Estoque</h1>
+        <form id="loginForm" class="auth-form">
+          <label>
+            E-mail
+            <input name="email" type="email" value="admin@estoque.local" autocomplete="email" required />
+            <span class="error" data-error="email"></span>
+          </label>
+          <label>
+            Senha
+            <input name="senha" type="password" value="123456" autocomplete="current-password" required />
+            <span class="error" data-error="senha"></span>
+          </label>
+          <button type="submit">Entrar</button>
+        </form>
+        <div class="auth-actions">
+          <button class="secondary" id="googleDemoLogin">Entrar com Google demo</button>
+          <button class="ghost" id="toggleRegister">Criar usuario</button>
+        </div>
+        <form id="registerForm" class="auth-form hidden">
+          <label>
+            Nome
+            <input name="nome" autocomplete="name" />
+            <span class="error" data-error="nome"></span>
+          </label>
+          <label>
+            E-mail
+            <input name="email" type="email" autocomplete="email" />
+            <span class="error" data-error="email"></span>
+          </label>
+          <label>
+            Senha
+            <input name="senha" type="password" autocomplete="new-password" />
+            <span class="error" data-error="senha"></span>
+          </label>
+          <button type="submit">Cadastrar e entrar</button>
+        </form>
+      </section>
+    </main>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="app-sidebar">
+        <div class="brand">
+          <span class="brand-mark">E</span>
+          <div>
+            <p class="eyebrow">Projeto Integrador</p>
+            <strong>Estoque</strong>
+          </div>
+        </div>
+
+        <nav class="tabs" aria-label="Modulos do sistema">
+          <button class="tab active" data-tab="produtos">Produtos</button>
+          <button class="tab" data-tab="fornecedores">Fornecedores</button>
+          <button class="tab" data-tab="associacoes">Associacoes</button>
+          <button class="tab" data-tab="relatorios">Relatorios</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="status" id="status">Conectando...</div>
+          <div class="user-card">
+            <span class="avatar" id="userAvatar">U</span>
+            <div>
+              <strong id="userName">Usuario</strong>
+              <span id="userProvider">local</span>
+            </div>
+          </div>
+          <button class="secondary" id="logoutButton">Sair</button>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="route-box">
+            <p class="eyebrow">Navegacao</p>
+            <div class="breadcrumb" id="breadcrumb">Estoque / Produtos</div>
+            <code id="routePath">#/produtos</code>
+          </div>
+          <div class="topbar-actions">
+            <div class="route-history" id="routeHistory"></div>
+            <details class="notifications">
+              <summary>
+                Notificacoes
+                <span id="notificationCount">0</span>
+              </summary>
+              <div class="notification-list" id="notificationList"></div>
+            </details>
+          </div>
+        </header>
+
+        <section class="panel active" id="produtos">
+          <div class="module-heading">
+            <div>
+              <p class="eyebrow">Estoque</p>
+              <h2>Produtos</h2>
+            </div>
+            <button class="secondary" id="limparProduto">Novo produto</button>
+          </div>
+
+          <div class="workbench">
+            <aside class="context-panel">
+              <section class="context-section">
+                <h3>Importar nota fiscal</h3>
+                <label>
+                  XML da NF-e
+                  <input id="notaFiscalInput" type="file" accept=".xml,text/xml,application/xml" />
+                </label>
+                <button type="button" id="importarNotaButton">Importar produtos</button>
+                <p class="muted compact-text">Use o XML da NF-e para cadastrar produtos em lote e associar o emitente como fornecedor.</p>
+              </section>
+
+              <section class="context-section product-detail empty" id="produtoDetalhe">
+                Selecione um produto para visualizar os detalhes.
+              </section>
+
+              <section class="context-section">
+                <h3>Ultimos adicionamentos</h3>
+                <div class="activity-list" id="atividadesProdutos"></div>
+              </section>
+            </aside>
+
+            <div class="main-panel">
+              <form id="produtoForm" class="form-grid">
+                <input type="hidden" name="id" />
+                <label>
+                  Nome do Produto
+                  <input name="nome" placeholder="Insira o nome do produto" required />
+                  <span class="error" data-error="nome"></span>
+                </label>
+                <label>
+                  Codigo de Barras
+                  <div class="input-action">
+                    <input name="codigoBarras" placeholder="Insira ou leia o codigo" inputmode="numeric" required />
+                    <button type="button" class="secondary icon-button" id="scanBarcodeButton" title="Ler codigo pela camera">Ler</button>
+                  </div>
+                  <span class="error" data-error="codigoBarras"></span>
+                </label>
+                <label>
+                  Preco
+                  <input name="preco" type="number" min="0" step="0.01" placeholder="0,00" />
+                  <span class="error" data-error="preco"></span>
+                </label>
+                <label>
+                  Quantidade
+                  <input name="quantidade" type="number" min="0" step="1" placeholder="0" />
+                  <span class="error" data-error="quantidade"></span>
+                </label>
+                <label>
+                  Categoria
+                  <select name="categoria" required>
+                    <option value="">Selecione</option>
+                    <option>Eletronicos</option>
+                    <option>Alimentos</option>
+                    <option>Vestuario</option>
+                    <option>Limpeza</option>
+                    <option>Importado da NF-e</option>
+                    <option>Outro</option>
+                  </select>
+                  <span class="error" data-error="categoria"></span>
+                </label>
+                <label>
+                  Data de Validade
+                  <input name="dataValidade" type="date" />
+                </label>
+                <label class="wide">
+                  Descricao
+                  <textarea name="descricao" placeholder="Descreva brevemente o produto" required></textarea>
+                  <span class="error" data-error="descricao"></span>
+                </label>
+                <label class="wide">
+                  Imagem do Produto
+                  <input name="imagemArquivo" type="file" accept="image/*" />
+                </label>
+                <div class="form-actions wide">
+                  <button type="submit">Cadastrar</button>
+                </div>
+              </form>
+
+              <div class="toolbar">
+                <label class="search-field">
+                  Buscar produto
+                  <input id="produtoBusca" placeholder="Nome, codigo ou categoria" />
+                </label>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th>Codigo</th>
+                      <th>Estoque</th>
+                      <th>Categoria</th>
+                      <th>Acoes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="produtosTabela"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="fornecedores">
+          <div class="module-heading">
+            <div>
+              <p class="eyebrow">Cadastro</p>
+              <h2>Fornecedores</h2>
+            </div>
+            <button class="secondary" id="limparFornecedor">Novo fornecedor</button>
+          </div>
+
+          <div class="workbench">
+            <aside class="context-panel">
+              <section class="context-section supplier-detail empty" id="fornecedorDetalhe">
+                Selecione um fornecedor para visualizar os detalhes.
+              </section>
+              <section class="context-section">
+                <h3>Ultimos fornecedores</h3>
+                <div class="activity-list" id="atividadesFornecedores"></div>
+              </section>
+            </aside>
+
+            <div class="main-panel">
+              <form id="fornecedorForm" class="form-grid">
+                <input type="hidden" name="id" />
+                <label>
+                  Nome da Empresa
+                  <input name="nomeEmpresa" placeholder="Insira o nome da empresa" required />
+                  <span class="error" data-error="nomeEmpresa"></span>
+                </label>
+                <label>
+                  CNPJ
+                  <input name="cnpj" placeholder="00.000.000/0000-00" required />
+                  <span class="error" data-error="cnpj"></span>
+                </label>
+                <label class="wide">
+                  Endereco
+                  <input name="endereco" placeholder="Insira o endereco completo da empresa" required />
+                  <span class="error" data-error="endereco"></span>
+                </label>
+                <label>
+                  Telefone
+                  <input name="telefone" placeholder="(00) 0000-0000" required />
+                  <span class="error" data-error="telefone"></span>
+                </label>
+                <label>
+                  E-mail
+                  <input name="email" type="email" placeholder="exemplo@fornecedor.com" required />
+                  <span class="error" data-error="email"></span>
+                </label>
+                <label class="wide">
+                  Contato Principal
+                  <input name="contatoPrincipal" placeholder="Nome do contato principal" required />
+                  <span class="error" data-error="contatoPrincipal"></span>
+                </label>
+                <div class="form-actions wide">
+                  <button type="submit">Cadastrar</button>
+                </div>
+              </form>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Empresa</th>
+                      <th>CNPJ</th>
+                      <th>Contato</th>
+                      <th>Acoes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fornecedoresTabela"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="associacoes">
+          <div class="module-heading">
+            <div>
+              <p class="eyebrow">Relacionamento</p>
+              <h2>Associacoes</h2>
+            </div>
+          </div>
+
+          <div class="workbench">
+            <aside class="context-panel">
+              <section class="context-section">
+                <h3>Associar</h3>
+                <form id="associacaoForm" class="form-grid single">
+                  <label>
+                    Produto
+                    <select name="produtoId" required></select>
+                  </label>
+                  <label>
+                    Fornecedor
+                    <select name="fornecedorId" required></select>
+                  </label>
+                  <button type="submit">Associar</button>
+                </form>
+              </section>
+              <section class="context-section association-detail empty" id="associacaoDetalhe">
+                Selecione uma associacao para visualizar o relacionamento.
+              </section>
+              <section class="context-section">
+                <h3>Ultimas associacoes</h3>
+                <div class="activity-list" id="atividadesAssociacoes"></div>
+              </section>
+            </aside>
+
+            <div class="main-panel">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th>Codigo</th>
+                      <th>Fornecedor</th>
+                      <th>CNPJ</th>
+                      <th>Acoes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="associacoesTabela"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="relatorios">
+          <div class="module-heading">
+            <div>
+              <p class="eyebrow">Analise</p>
+              <h2>Relatorios</h2>
+            </div>
+            <button class="secondary" id="atualizarRelatorios">Atualizar dados</button>
+          </div>
+
+          <div class="report-grid" id="reportCards"></div>
+
+          <div class="workbench report-workbench">
+            <aside class="context-panel">
+              <section class="context-section">
+                <h3>Resumo operacional</h3>
+                <div class="report-summary" id="reportSummary"></div>
+              </section>
+              <section class="context-section">
+                <h3>Ultimas atividades</h3>
+                <div class="activity-list" id="atividadesRelatorios"></div>
+              </section>
+            </aside>
+
+            <div class="main-panel">
+              <div class="report-columns">
+                <section>
+                  <h3>Produtos por categoria</h3>
+                  <div class="table-wrap compact-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Categoria</th>
+                          <th>Produtos</th>
+                          <th>Unidades</th>
+                        </tr>
+                      </thead>
+                      <tbody id="categoriaRelatorio"></tbody>
+                    </table>
+                  </div>
+                </section>
+                <section>
+                  <h3>Produtos com baixo estoque</h3>
+                  <div class="table-wrap compact-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Produto</th>
+                          <th>Codigo</th>
+                          <th>Qtd.</th>
+                        </tr>
+                      </thead>
+                      <tbody id="baixoEstoqueRelatorio"></tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="scanner-modal hidden" id="scannerModal" role="dialog" aria-modal="true">
+      <div class="scanner-card">
+        <div class="module-heading">
+          <div>
+            <p class="eyebrow">Camera</p>
+            <h2>Leitor de Codigo</h2>
+          </div>
+          <button class="secondary" id="closeScanner">Fechar</button>
+        </div>
+        <video id="scannerVideo" playsinline muted></video>
+        <canvas id="scannerCanvas" class="hidden"></canvas>
+        <p class="muted" id="scannerStatus">Aponte a camera para o codigo de barras.</p>
+      </div>
+    </div>
+
+    <div class="alert-stack" id="alertStack" aria-live="polite"></div>
+    <div class="success-modal hidden" id="successModal" role="dialog" aria-modal="true">
+      <div class="success-card">
+        <div class="success-icon">✓</div>
+        <div>
+          <p class="eyebrow" id="successKicker">Confirmacao</p>
+          <h2 id="successTitle">Operacao concluida</h2>
+          <p id="successMessage">Registro salvo com sucesso.</p>
+        </div>
+        <button type="button" id="successClose">OK</button>
+      </div>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

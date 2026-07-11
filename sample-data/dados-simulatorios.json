@@ -1,0 +1,77 @@
+{
+  "fornecedores": [
+    {
+      "nomeEmpresa": "Distribuidora Central",
+      "cnpj": "11.222.333/0001-44",
+      "endereco": "Avenida Principal, 100, Brasilia - DF",
+      "telefone": "(61) 3333-4444",
+      "email": "contato@central.local",
+      "contatoPrincipal": "Ana Souza"
+    },
+    {
+      "nomeEmpresa": "Tech Suprimentos",
+      "cnpj": "22.333.444/0001-55",
+      "endereco": "Rua das Pecas, 120, Brasilia - DF",
+      "telefone": "(61) 3555-1212",
+      "email": "vendas@tech.local",
+      "contatoPrincipal": "Bruno Lima"
+    },
+    {
+      "nomeEmpresa": "Alimentos Brasil",
+      "cnpj": "33.444.555/0001-66",
+      "endereco": "SIA Trecho 3, lote 20, Brasilia - DF",
+      "telefone": "(61) 3777-8888",
+      "email": "comercial@alimentos.local",
+      "contatoPrincipal": "Carla Mendes"
+    }
+  ],
+  "produtos": [
+    {
+      "nome": "Teclado USB",
+      "codigoBarras": "7891000000001",
+      "descricao": "Teclado com conexao USB para escritorio",
+      "preco": 89.9,
+      "quantidade": 12,
+      "categoria": "Eletronicos"
+    },
+    {
+      "nome": "Mouse Optico",
+      "codigoBarras": "7891000000002",
+      "descricao": "Mouse optico USB",
+      "preco": 39.9,
+      "quantidade": 4,
+      "categoria": "Eletronicos"
+    },
+    {
+      "nome": "Cabo HDMI 2m",
+      "codigoBarras": "7891000000003",
+      "descricao": "Cabo HDMI de dois metros",
+      "preco": 29.9,
+      "quantidade": 20,
+      "categoria": "Eletronicos"
+    },
+    {
+      "nome": "Cafe Tradicional 500g",
+      "codigoBarras": "7891000000004",
+      "descricao": "Cafe torrado e moido",
+      "preco": 18.5,
+      "quantidade": 30,
+      "categoria": "Alimentos"
+    },
+    {
+      "nome": "Luva Multiuso",
+      "codigoBarras": "7891000000005",
+      "descricao": "Luva multiuso para limpeza",
+      "preco": 7.9,
+      "quantidade": 3,
+      "categoria": "Limpeza"
+    }
+  ],
+  "associacoes": [
+    ["7891000000001", "22.333.444/0001-55"],
+    ["7891000000002", "22.333.444/0001-55"],
+    ["7891000000003", "22.333.444/0001-55"],
+    ["7891000000004", "33.444.555/0001-66"],
+    ["7891000000005", "11.222.333/0001-44"]
+  ]
+}
