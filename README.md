@@ -34,6 +34,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 
 - Node.js
 - SQLite via `node:sqlite`
+- Camada documental NoSQL local em JSONL para snapshots de relatorios
 - HTML, CSS e JavaScript
 
 Requisito recomendado: Node.js 22 ou superior, pois o projeto usa o SQLite nativo do Node.
@@ -125,8 +126,27 @@ O teste cria um banco temporario, sobe o servidor, cadastra fornecedor, cadastra
 
 - `POST /api/importacoes/nota`
 - `GET /api/atividades`
+- `GET /api/relatorios`
+- `GET /api/relatorios/snapshots`
 
 O importador da tela de produtos aceita XML de NF-e. Ele le o emitente como fornecedor, extrai os itens da nota e cadastra/atualiza produtos automaticamente em lote.
+
+## Arquitetura
+
+O backend foi modularizado em camadas:
+
+- `routes`: roteamento da API e dos arquivos estaticos.
+- `controllers`: entrada HTTP e respostas.
+- `services`: regras de negocio.
+- `repositories`: consultas SQL.
+- `dtos`: formato de saida da API.
+- `validators`: validacao dos dados recebidos.
+- `nosql`: armazenamento documental JSONL para indicadores de BI.
+
+Documentos de apoio:
+
+- `docs/arquitetura-modular.md`
+- `docs/revisao-5-periodo.md`
 
 ## Exemplos Para Insomnia ou Postman
 

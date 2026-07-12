@@ -142,6 +142,15 @@ async function request(baseUrl, path, options = {}) {
   assert.equal(mockups.data.resumo.produtos, 5);
   assert.equal(mockups.data.resumo.fornecedores, 3);
 
+  const relatorio = await request(baseUrl, "/api/relatorios", { headers: authHeaders });
+  assert.equal(relatorio.status, 200);
+  assert.ok(relatorio.data.indicadores.totalProdutos >= 7);
+  assert.ok(Array.isArray(relatorio.data.dimensoes.categorias));
+
+  const snapshots = await request(baseUrl, "/api/relatorios/snapshots", { headers: authHeaders });
+  assert.equal(snapshots.status, 200);
+  assert.ok(snapshots.data.length >= 1);
+
   console.log("Smoke test concluido com sucesso.");
 })()
   .catch((error) => {
