@@ -17,6 +17,8 @@
 - [x] Exportacao em Excel.
 - [x] Exportacao em PDF.
 - [x] Exportacao Excel de produtos, fornecedores e associacoes.
+- [x] API REST publica sem autenticacao para avaliacao via Insomnia.
+- [x] Arquivo com chamadas prontas para Insomnia.
 
 ## Arquitetura
 
@@ -38,6 +40,7 @@
 - [x] Code review documentado.
 - [x] Revisao modular documentada.
 - [x] Projeto versionado no GitHub.
+- [x] Configuracao inicial para deploy no Replit.
 
 ## Comando final de validacao
 

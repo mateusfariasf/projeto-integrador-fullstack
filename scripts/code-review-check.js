@@ -13,6 +13,7 @@ const requiredFiles = [
   "src/routes/api.routes.js",
   "src/controllers/auth.controller.js",
   "src/controllers/estoque.controller.js",
+  "src/controllers/public.controller.js",
   "src/services/auth.service.js",
   "src/services/estoque.service.js",
   "src/services/relatorios.service.js",
@@ -23,9 +24,12 @@ const requiredFiles = [
   "src/validators/produto.validator.js",
   "src/validators/fornecedor.validator.js",
   "src/nosql/document-store.js",
+  ".replit",
+  "replit.nix",
   "public/index.html",
   "public/app.js",
-  "public/styles.css"
+  "public/styles.css",
+  "docs/chamadas-insomnia.txt"
 ];
 
 const requiredDirectories = [
@@ -73,6 +77,14 @@ assert.match(appSource, /exportarFornecedoresExcel/, "Fornecedores devem possuir
 assert.match(appSource, /exportarAssociacoesExcel/, "Associacoes devem possuir exportacao em Excel.");
 assert.match(appSource, /openPasswordRecoveryModal/, "Login deve possuir recuperacao de senha demonstrativa.");
 assert.match(appSource, /closeNotificationsOnOutsideClick/, "Notificacoes devem fechar ao clicar fora.");
+
+const routesSource = fs.readFileSync(path.join(root, "src/routes/api.routes.js"), "utf8");
+const publicSource = fs.readFileSync(path.join(root, "src/controllers/public.controller.js"), "utf8");
+assert.match(routesSource, /handlePublicApi/, "API deve possuir rotas publicas para avaliacao academica.");
+assert.match(publicSource, /api\/public\/produtos|produtos/, "API publica deve expor produtos.");
+assert.match(publicSource, /fornecedores/, "API publica deve expor fornecedores.");
+assert.match(publicSource, /associacoes/, "API publica deve expor associacoes.");
+assert.match(publicSource, /gerarRelatorioEstoque/, "API publica deve expor relatorio de BI.");
 
 let trackedFiles = [];
 try {

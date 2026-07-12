@@ -33,6 +33,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Associacao e desassociacao entre produtos e fornecedores.
 - Consulta visual das associacoes produto/fornecedor.
 - Persistencia dos dados em SQLite.
+- API REST publica para avaliacao academica via Insomnia, sem autenticacao.
 
 ## Tecnologias
 
@@ -102,6 +103,21 @@ O teste cria um banco temporario, sobe o servidor, cadastra fornecedor, cadastra
 
 ## Rotas Principais da API
 
+### Entrega REST publica para Insomnia
+
+Estas rotas foram separadas para avaliacao academica e nao exigem autenticacao:
+
+- `GET /api/public/produtos`
+- `GET /api/public/fornecedores`
+- `GET /api/public/associacoes`
+- `GET /api/public/relatorios`
+
+As chamadas prontas para copiar no Insomnia estao em:
+
+- `docs/chamadas-insomnia.txt`
+
+Ao executar uma dessas chamadas em um banco vazio, o sistema carrega automaticamente uma massa demonstrativa para facilitar a avaliacao em nuvem.
+
 ### Fornecedores
 
 - `GET /api/fornecedores`
@@ -134,6 +150,25 @@ O teste cria um banco temporario, sobe o servidor, cadastra fornecedor, cadastra
 - `GET /api/relatorios/snapshots`
 
 O importador da tela de produtos aceita XML de NF-e. Ele le o emitente como fornecedor, extrai os itens da nota e cadastra/atualiza produtos automaticamente em lote.
+
+## Deploy no Replit
+
+1. Crie um novo projeto no Replit importando o repositorio do GitHub.
+2. Confirme que o comando de execucao esta como:
+
+```bash
+npm start
+```
+
+3. O projeto ja possui `.replit` e `replit.nix` para usar Node.js 22.
+4. Depois de publicar, substitua `{{baseUrl}}` em `docs/chamadas-insomnia.txt` pela URL gerada pelo Replit.
+5. Teste no Insomnia pelo menos estas tres chamadas:
+
+```text
+GET {{baseUrl}}/api/public/produtos
+GET {{baseUrl}}/api/public/fornecedores
+GET {{baseUrl}}/api/public/associacoes
+```
 
 ## Arquitetura
 

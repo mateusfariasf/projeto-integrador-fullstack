@@ -1,0 +1,35 @@
+Projeto Integrador Full Stack - Chamadas REST publicas para Insomnia
+
+URL base local:
+http://localhost:3000
+
+URL base em nuvem:
+Substituir pelo endereco publicado no Replit, por exemplo:
+https://projeto-integrador-fullstack.<seu-usuario>.replit.app
+
+Observacao:
+As chamadas abaixo nao exigem autenticacao. Ao executar a primeira chamada, o sistema garante uma massa demonstrativa de produtos, fornecedores e associacoes para avaliacao academica.
+
+1) Listar produtos
+Metodo: GET
+URL: {{baseUrl}}/api/public/produtos
+Headers:
+Content-Type: application/json
+
+2) Listar fornecedores
+Metodo: GET
+URL: {{baseUrl}}/api/public/fornecedores
+Headers:
+Content-Type: application/json
+
+3) Listar associacoes produto/fornecedor
+Metodo: GET
+URL: {{baseUrl}}/api/public/associacoes
+Headers:
+Content-Type: application/json
+
+Chamada extra para inteligencia de negocio:
+Metodo: GET
+URL: {{baseUrl}}/api/public/relatorios
+Headers:
+Content-Type: application/json

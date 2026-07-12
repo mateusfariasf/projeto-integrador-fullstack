@@ -21,6 +21,8 @@ Nenhum bloqueador critico foi identificado na revisao final. O projeto esta func
 | Exportacao | Aprovado | Relatorios possuem exportacao em Excel/PDF e tabelas principais exportam Excel |
 | Recuperacao de senha | Aprovado | Login possui modulo demonstrativo de recuperacao por e-mail |
 | Notificacoes | Aprovado | Painel fecha automaticamente ao clicar fora |
+| Entrega REST | Aprovado | Rotas `GET /api/public/...` permitem avaliacao sem autenticacao no Insomnia |
+| Deploy | Aprovado | Projeto possui configuracao inicial para Replit com `npm start` |
 
 ## Observacoes tecnicas
 

@@ -48,6 +48,7 @@ O arquivo `scripts/smoke-test.js` valida:
 13. Abrir `Recuperar senha` na tela de login e validar o modal demonstrativo.
 14. Abrir `Notificacoes` e clicar fora para validar fechamento automatico.
 15. Usar os botoes de download nas tabelas de produtos, fornecedores e associacoes.
+16. No Insomnia, executar `GET /api/public/produtos`, `GET /api/public/fornecedores` e `GET /api/public/associacoes` sem token.
 
 ## Criterio de aceite
 

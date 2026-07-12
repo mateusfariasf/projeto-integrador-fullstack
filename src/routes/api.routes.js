@@ -5,6 +5,7 @@ const {
   handleMockupSeed,
   handleProdutos
 } = require("../controllers/estoque.controller");
+const { handlePublicApi } = require("../controllers/public.controller");
 const authService = require("../services/auth.service");
 const estoqueService = require("../services/estoque.service");
 const relatoriosService = require("../services/relatorios.service");
@@ -16,6 +17,11 @@ async function routeApi(req, res, db, url) {
 
   if (method === "GET" && url.pathname === "/api/health") {
     sendJson(res, 200, { status: "ok" });
+    return;
+  }
+
+  if (parts[1] === "public") {
+    handlePublicApi(res, db, method, parts);
     return;
   }
 

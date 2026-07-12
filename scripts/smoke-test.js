@@ -246,6 +246,25 @@ async function request(baseUrl, path, options = {}) {
   assert.equal(snapshots.status, 200);
   assert.ok(snapshots.data.length >= 1);
 
+  const publicProdutos = await request(baseUrl, "/api/public/produtos");
+  assert.equal(publicProdutos.status, 200);
+  assert.ok(publicProdutos.data.total >= 5);
+  assert.ok(Array.isArray(publicProdutos.data.dados));
+
+  const publicFornecedores = await request(baseUrl, "/api/public/fornecedores");
+  assert.equal(publicFornecedores.status, 200);
+  assert.ok(publicFornecedores.data.total >= 3);
+  assert.ok(Array.isArray(publicFornecedores.data.dados));
+
+  const publicAssociacoes = await request(baseUrl, "/api/public/associacoes");
+  assert.equal(publicAssociacoes.status, 200);
+  assert.ok(publicAssociacoes.data.total >= 3);
+  assert.ok(Array.isArray(publicAssociacoes.data.dados));
+
+  const publicRelatorio = await request(baseUrl, "/api/public/relatorios");
+  assert.equal(publicRelatorio.status, 200);
+  assert.ok(publicRelatorio.data.dados.indicadores.totalProdutos >= 5);
+
   console.log("Smoke test concluido com sucesso.");
 })()
   .catch((error) => {
