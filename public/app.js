@@ -72,8 +72,23 @@ function setupForms() {
   $("#fornecedorForm").addEventListener("submit", saveFornecedor);
   $("#produtoForm").addEventListener("submit", saveProduto);
   $("#associacaoForm").addEventListener("submit", saveAssociacao);
-  $("#limparFornecedor").addEventListener("click", () => resetFornecedorForm());
-  $("#limparProduto").addEventListener("click", () => resetProdutoForm());
+  $("#limparFornecedor").addEventListener("click", () => openFornecedorModal());
+  $("#limparProduto").addEventListener("click", () => openProdutoModal());
+  $("#novaAssociacao").addEventListener("click", () => openAssociacaoModal());
+  $("#excluirFornecedorModal").addEventListener("click", () => deleteFornecedor(Number($("#fornecedorForm").elements.id.value)));
+  $("#excluirProdutoModal").addEventListener("click", () => deleteProduto(Number($("#produtoForm").elements.id.value)));
+  $("#excluirAssociacaoModal").addEventListener("click", () => {
+    const form = $("#associacaoForm");
+    deleteAssociacao(Number(form.elements.oldProdutoId.value), Number(form.elements.oldFornecedorId.value));
+  });
+  $$("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", () => closeModal(button.dataset.closeModal));
+  });
+  $$(".entity-modal").forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal(modal.id);
+    });
+  });
   $("#produtoBusca").addEventListener("input", () => renderProdutos());
   $("#importarNotaButton").addEventListener("click", importarNotaFiscal);
   $("#carregarMockups").addEventListener("click", carregarMockups);
@@ -273,6 +288,7 @@ async function saveFornecedor(event) {
     state.fornecedorSelecionadoId = result.fornecedor?.id || Number(data.id) || state.fornecedorSelecionadoId;
     showSuccessModal(editing ? "Fornecedor atualizado" : "Fornecedor cadastrado", result.mensagem, "Fornecedores");
     resetFornecedorForm(false);
+    closeModal("fornecedorModal");
     await loadAll();
   } catch (error) {
     showErrors("#fornecedorForm", error.data?.errors);
@@ -299,6 +315,7 @@ async function saveProduto(event) {
     state.produtoSelecionadoId = result.produto?.id || Number(data.id) || state.produtoSelecionadoId;
     showSuccessModal(editing ? "Produto atualizado" : "Produto cadastrado", result.mensagem, "Produtos");
     resetProdutoForm(false);
+    closeModal("produtoModal");
     await loadAll();
   } catch (error) {
     showErrors("#produtoForm", error.data?.errors);
@@ -310,11 +327,29 @@ async function saveAssociacao(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = Object.fromEntries(new FormData(form).entries());
+  const oldProdutoId = Number(data.oldProdutoId || 0);
+  const oldFornecedorId = Number(data.oldFornecedorId || 0);
+  const produtoId = Number(data.produtoId);
+  const fornecedorId = Number(data.fornecedorId);
 
   try {
-    const result = await api(`/api/produtos/${data.produtoId}/fornecedores/${data.fornecedorId}`, { method: "POST" });
-    state.associacaoSelecionada = { produtoId: Number(data.produtoId), fornecedorId: Number(data.fornecedorId) };
-    showSuccessModal("Associacao criada", result.mensagem, "Associacoes");
+    const changing = oldProdutoId && oldFornecedorId && (oldProdutoId !== produtoId || oldFornecedorId !== fornecedorId);
+    const targetExists = state.associacoes.some((item) => item.produtoId === produtoId && item.fornecedorId === fornecedorId);
+    if ((!oldProdutoId || changing) && targetExists) {
+      showAlert("Essa associacao ja existe.", "warning");
+      return;
+    }
+
+    if (oldProdutoId && oldFornecedorId && (oldProdutoId !== produtoId || oldFornecedorId !== fornecedorId)) {
+      await api(`/api/produtos/${oldProdutoId}/fornecedores/${oldFornecedorId}`, { method: "DELETE" });
+    }
+    const result = oldProdutoId === produtoId && oldFornecedorId === fornecedorId
+      ? { mensagem: "Associacao mantida sem alteracoes." }
+      : await api(`/api/produtos/${produtoId}/fornecedores/${fornecedorId}`, { method: "POST" });
+    state.associacaoSelecionada = { produtoId, fornecedorId };
+    closeModal("associacaoModal");
+    resetAssociacaoForm(false);
+    showSuccessModal(oldProdutoId ? "Associacao atualizada" : "Associacao criada", result.mensagem, "Associacoes");
     await loadAll();
   } catch (error) {
     showAlert(error.message, "danger");
@@ -379,6 +414,7 @@ function renderAssociacoes() {
           <td>${escapeHtml(item.nomeEmpresa)}</td>
           <td>${escapeHtml(item.cnpj)}</td>
           <td class="actions" onclick="event.stopPropagation()">
+            <button class="secondary" onclick="editAssociacao(${item.produtoId}, ${item.fornecedorId})">Editar</button>
             <button class="danger" onclick="deleteAssociacao(${item.produtoId}, ${item.fornecedorId})">Desassociar</button>
           </td>
         </tr>
@@ -530,6 +566,64 @@ function renderRelatorios() {
       </tr>
     `).join("")
     : `<tr><td colspan="3" class="muted">Nenhum produto com baixo estoque.</td></tr>`;
+
+  renderReportCharts(produtosFiltrados, categorias, baixoEstoque);
+}
+
+function renderReportCharts(produtosFiltrados, categorias, baixoEstoque) {
+  const categoriasOrdenadas = Object.values(categorias)
+    .map((item) => ({
+      ...item,
+      valor: produtosFiltrados
+        .filter((produto) => (produto.categoria || "Sem categoria") === item.categoria)
+        .reduce((sum, produto) => sum + Number(produto.preco || 0) * Number(produto.quantidade || 0), 0)
+    }))
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 6);
+  const maxCategoria = Math.max(...categoriasOrdenadas.map((item) => item.valor), 1);
+
+  $("#categoriaGrafico").innerHTML = categoriasOrdenadas.length
+    ? categoriasOrdenadas.map((item) => `
+      <div class="bar-row">
+        <span>${escapeHtml(item.categoria)}</span>
+        <div><i style="width:${Math.max(8, (item.valor / maxCategoria) * 100)}%"></i></div>
+        <strong>R$ ${item.valor.toFixed(2)}</strong>
+      </div>
+    `).join("")
+    : `<p class="muted">Sem dados para gerar grafico.</p>`;
+
+  const zerado = produtosFiltrados.filter((item) => Number(item.quantidade || 0) === 0).length;
+  const baixo = baixoEstoque.length - zerado;
+  const disponivel = Math.max(produtosFiltrados.length - baixo - zerado, 0);
+  const total = Math.max(produtosFiltrados.length, 1);
+  const disponivelPct = (disponivel / total) * 100;
+  const baixoPct = (baixo / total) * 100;
+  const donut = $("#estoqueDonut");
+  donut.style.background = `conic-gradient(var(--primary) 0 ${disponivelPct}%, var(--accent) ${disponivelPct}% ${disponivelPct + baixoPct}%, var(--danger) ${disponivelPct + baixoPct}% 100%)`;
+  donut.dataset.total = String(produtosFiltrados.length);
+  $("#estoqueLegenda").innerHTML = [
+    ["Disponivel", disponivel, "primary"],
+    ["Baixo", baixo, "accent"],
+    ["Zerado", zerado, "danger"]
+  ].map(([label, value, color]) => `<span><i class="${color}"></i>${label}: <strong>${value}</strong></span>`).join("");
+
+  const ranking = [...produtosFiltrados]
+    .map((item) => ({ ...item, valor: Number(item.preco || 0) * Number(item.quantidade || 0) }))
+    .sort((a, b) => b.valor - a.valor)
+    .slice(0, 5);
+  const maxValor = Math.max(...ranking.map((item) => item.valor), 1);
+  $("#valorProdutosGrafico").innerHTML = ranking.length
+    ? ranking.map((item, index) => `
+      <article>
+        <span>${index + 1}</span>
+        <div>
+          <strong>${escapeHtml(item.nome)}</strong>
+          <i style="width:${Math.max(8, (item.valor / maxValor) * 100)}%"></i>
+        </div>
+        <b>R$ ${item.valor.toFixed(2)}</b>
+      </article>
+    `).join("")
+    : `<p class="muted">Sem produtos para ranquear.</p>`;
 }
 
 function renderReportCategoryOptions() {
@@ -650,6 +744,59 @@ function renderSelects() {
     .join("");
 }
 
+function openProdutoModal(item = null) {
+  resetProdutoForm(false);
+  $("#produtoModalTitle").textContent = item ? "Editar produto" : "Novo produto";
+  $("#excluirProdutoModal").classList.toggle("hidden", !item);
+  if (item) {
+    state.produtoSelecionadoId = item.id;
+    const form = $("#produtoForm");
+    fillForm(form, item);
+    form.dataset.imagemAtual = item.imagem || "";
+    renderProdutos();
+    renderProdutoDetalhe();
+  }
+  openModal("produtoModal");
+}
+
+function openFornecedorModal(item = null) {
+  resetFornecedorForm(false);
+  $("#fornecedorModalTitle").textContent = item ? "Editar fornecedor" : "Novo fornecedor";
+  $("#excluirFornecedorModal").classList.toggle("hidden", !item);
+  if (item) {
+    state.fornecedorSelecionadoId = item.id;
+    fillForm($("#fornecedorForm"), item);
+    renderFornecedores();
+    renderFornecedorDetalhe();
+  }
+  openModal("fornecedorModal");
+}
+
+function openAssociacaoModal(assoc = null) {
+  resetAssociacaoForm(false);
+  renderSelects();
+  $("#associacaoModalTitle").textContent = assoc ? "Editar associacao" : "Nova associacao";
+  $("#excluirAssociacaoModal").classList.toggle("hidden", !assoc);
+  if (assoc) {
+    const form = $("#associacaoForm");
+    form.elements.produtoId.value = assoc.produtoId;
+    form.elements.fornecedorId.value = assoc.fornecedorId;
+    form.elements.oldProdutoId.value = assoc.produtoId;
+    form.elements.oldFornecedorId.value = assoc.fornecedorId;
+  }
+  openModal("associacaoModal");
+}
+
+function openModal(id) {
+  const modal = $(`#${id}`);
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeModal(id) {
+  const modal = $(`#${id}`);
+  if (modal) modal.classList.add("hidden");
+}
+
 function selectProduto(id) {
   state.produtoSelecionadoId = id;
   setHash(`/produtos/${id}`);
@@ -677,27 +824,30 @@ function selectAssociacao(produtoId, fornecedorId) {
 function editFornecedor(id) {
   const item = state.fornecedores.find((fornecedor) => fornecedor.id === id);
   if (!item) return;
-  state.fornecedorSelecionadoId = id;
-  fillForm($("#fornecedorForm"), item);
-  $("#fornecedorForm button[type='submit']").textContent = "Atualizar";
   setHash(`/fornecedores/${id}`);
   activateTab("fornecedores", false);
-  renderFornecedorDetalhe();
+  openFornecedorModal(item);
   renderTopbar();
 }
 
 function editProduto(id) {
   const item = state.produtos.find((produto) => produto.id === id);
   if (!item) return;
-  state.produtoSelecionadoId = id;
-  const form = $("#produtoForm");
-  fillForm(form, item);
-  form.dataset.imagemAtual = item.imagem || "";
-  form.querySelector("button[type='submit']").textContent = "Atualizar";
   setHash(`/produtos/${id}`);
   activateTab("produtos", false);
-  renderProdutos();
-  renderProdutoDetalhe();
+  openProdutoModal(item);
+  renderTopbar();
+}
+
+function editAssociacao(produtoId, fornecedorId) {
+  const assoc = state.associacoes.find((item) => item.produtoId === produtoId && item.fornecedorId === fornecedorId);
+  if (!assoc) return;
+  state.associacaoSelecionada = { produtoId, fornecedorId };
+  setHash(`/associacoes/${produtoId}/${fornecedorId}`);
+  activateTab("associacoes", false);
+  renderAssociacoes();
+  renderAssociacaoDetalhe();
+  openAssociacaoModal(assoc);
   renderTopbar();
 }
 
@@ -706,6 +856,7 @@ async function deleteFornecedor(id) {
   try {
     const result = await api(`/api/fornecedores/${id}`, { method: "DELETE" });
     if (state.fornecedorSelecionadoId === id) state.fornecedorSelecionadoId = null;
+    closeModal("fornecedorModal");
     showAlert(result.mensagem, "success");
     await loadAll();
   } catch (error) {
@@ -718,6 +869,7 @@ async function deleteProduto(id) {
   try {
     const result = await api(`/api/produtos/${id}`, { method: "DELETE" });
     if (state.produtoSelecionadoId === id) state.produtoSelecionadoId = null;
+    closeModal("produtoModal");
     showAlert(result.mensagem, "success");
     await loadAll();
   } catch (error) {
@@ -729,6 +881,7 @@ async function deleteAssociacao(produtoId, fornecedorId) {
   try {
     const result = await api(`/api/produtos/${produtoId}/fornecedores/${fornecedorId}`, { method: "DELETE" });
     state.associacaoSelecionada = null;
+    closeModal("associacaoModal");
     showAlert(result.mensagem, "success");
     await loadAll();
   } catch (error) {
@@ -835,8 +988,10 @@ function resetFornecedorForm(clearSelection = true) {
   const form = $("#fornecedorForm");
   form.reset();
   form.elements.id.value = "";
-  form.querySelector("button[type='submit']").textContent = "Cadastrar";
+  form.querySelector("button[type='submit']").textContent = "Salvar";
   clearErrors("#fornecedorForm");
+  $("#fornecedorModalTitle").textContent = "Novo fornecedor";
+  $("#excluirFornecedorModal").classList.add("hidden");
   if (clearSelection) {
     state.fornecedorSelecionadoId = null;
     renderFornecedores();
@@ -849,12 +1004,28 @@ function resetProdutoForm(clearSelection = true) {
   form.reset();
   form.elements.id.value = "";
   form.dataset.imagemAtual = "";
-  form.querySelector("button[type='submit']").textContent = "Cadastrar";
+  form.querySelector("button[type='submit']").textContent = "Salvar";
   clearErrors("#produtoForm");
+  $("#produtoModalTitle").textContent = "Novo produto";
+  $("#excluirProdutoModal").classList.add("hidden");
   if (clearSelection) {
     state.produtoSelecionadoId = null;
     renderProdutos();
     renderProdutoDetalhe();
+  }
+}
+
+function resetAssociacaoForm(clearSelection = true) {
+  const form = $("#associacaoForm");
+  form.reset();
+  form.elements.oldProdutoId.value = "";
+  form.elements.oldFornecedorId.value = "";
+  $("#associacaoModalTitle").textContent = "Nova associacao";
+  $("#excluirAssociacaoModal").classList.add("hidden");
+  if (clearSelection) {
+    state.associacaoSelecionada = null;
+    renderAssociacoes();
+    renderAssociacaoDetalhe();
   }
 }
 
@@ -1121,6 +1292,7 @@ function escapeHtml(value) {
 
 window.editFornecedor = editFornecedor;
 window.editProduto = editProduto;
+window.editAssociacao = editAssociacao;
 window.deleteFornecedor = deleteFornecedor;
 window.deleteProduto = deleteProduto;
 window.deleteAssociacao = deleteAssociacao;

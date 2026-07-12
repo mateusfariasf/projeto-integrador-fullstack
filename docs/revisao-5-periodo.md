@@ -13,13 +13,13 @@ Esta revisao considera os materiais encontrados no caminho do 5 periodo, princip
 | Area | Status | Evidencias no projeto | Melhorias recomendadas |
 | --- | --- | --- | --- |
 | Projeto Integrador Full Stack | Atendido | Sistema de estoque com produtos, fornecedores, associacoes, login, NF-e, mockups e API | Criar apresentacao final com prints, arquitetura e roteiro de demonstracao |
-| Front-End | Parcialmente atendido | Interface responsiva, rotas por hash, sidebar, modais, relatorios e consumo de API | Migrar o frontend para componentes ES modules ou React/Vite se o professor exigir React |
+| Front-End | Parcialmente atendido | Interface responsiva, rotas por hash, sidebar, modais padronizados, relatorios e consumo de API | Migrar o frontend para componentes ES modules ou React/Vite se o professor exigir React |
 | Aplicacao modular | Atendido no backend, parcial no frontend | Backend separado em routes, controllers, services, repositories, DTOs e validators | Modularizar tambem `public/app.js` em componentes de tela |
 | API e Full Stack | Atendido | API REST com autenticacao, CRUD, associacoes, importacao e relatorios | Adicionar documentacao OpenAPI/Swagger no futuro |
 | Autenticacao e seguranca | Parcialmente atendido | Login local, token, hash de senha PBKDF2, sessao e logout | OAuth Google real ainda e demonstrativo local |
 | Banco relacional | Atendido | SQLite com tabelas, chaves estrangeiras e constraints de unicidade | Opcional: diagrama ER no relatorio final |
 | Banco NoSQL | Parcialmente atendido | Camada documental JSONL em `src/nosql` para snapshots de BI | Para ficar mais forte academicamente, trocar/adicionar MongoDB |
-| Inteligencia de Negocios | Atendido inicialmente | Aba de relatorios, filtros, KPIs, baixo estoque e endpoint `/api/relatorios` | Adicionar graficos visuais e mais indicadores gerenciais |
+| Inteligencia de Negocios | Atendido | Aba de relatorios, filtros, KPIs, baixo estoque, graficos visuais e endpoint `/api/relatorios` | Ampliar indicadores gerenciais conforme necessidade da apresentacao |
 | Dados de teste/mockups | Atendido | `sample-data`, `docs/dados-simulatorios.md`, seed por script e por interface | Ampliar massa com mais categorias e cenarios |
 | Qualidade e testes | Atendido inicialmente | `npm test` com smoke test cobrindo login, CRUD, associacao, NF-e, mockups e relatorios | Criar testes unitarios por service |
 | Git/GitHub | Atendido | Repositorio conectado e branch `main` publicada no GitHub | Usar commits pequenos por etapa e tags de versao |
@@ -64,6 +64,7 @@ A aba de relatorios ja possui:
 - categorias;
 - baixo estoque;
 - valor estimado;
+- graficos de categoria, distribuicao de estoque e ranking por valor;
 - ultimas atividades.
 
 O backend agora tambem possui:
@@ -77,7 +78,7 @@ Isso fortalece a relacao com Inteligencia de Negocios.
 ## Proximos passos sugeridos
 
 1. Modularizar o frontend em arquivos separados por tela e componentes.
-2. Adicionar graficos nos relatorios.
+2. Criar mais indicadores gerenciais nos relatorios.
 3. Criar um diagrama da arquitetura no README ou em documento separado.
 4. Adicionar MongoDB opcional ou documentar claramente a camada JSONL como NoSQL local.
 5. Criar testes unitarios para services e validators.

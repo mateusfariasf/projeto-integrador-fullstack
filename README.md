@@ -15,6 +15,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Cadastro, listagem, edicao e exclusao de produtos.
 - Validacao de codigo de barras unico para produtos.
 - Busca de produtos e painel lateral de visualizacao/cadastro.
+- Cadastros e edicoes em modais para produtos, fornecedores e associacoes.
 - Leitura de codigo de barras pela camera quando o navegador suporta `BarcodeDetector`.
 - Importacao de XML de NF-e para cadastrar produtos em lote.
 - Historico dos ultimos cadastros, importacoes e associacoes.
@@ -24,7 +25,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Sidebar recolhivel com icones para cada modulo.
 - Cards flutuantes animados para erros e avisos.
 - Modal de confirmacao para cadastros, importacoes e associacoes.
-- Aba de relatorios com filtros, totais, valor estimado, categorias e baixo estoque.
+- Aba de relatorios com filtros, totais, valor estimado, categorias, baixo estoque e graficos de BI.
 - Botao para carregar mockups diretamente pela interface.
 - Associacao e desassociacao entre produtos e fornecedores.
 - Consulta visual das associacoes produto/fornecedor.
