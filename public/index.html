@@ -8,44 +8,63 @@
   </head>
   <body>
     <main class="auth-screen" id="authScreen">
-      <section class="auth-card">
-        <p class="eyebrow">Projeto Integrador Full Stack</p>
-        <h1>Sistema de Controle de Estoque</h1>
-        <form id="loginForm" class="auth-form">
-          <label>
-            E-mail
-            <input name="email" type="email" value="admin@estoque.local" autocomplete="email" required />
-            <span class="error" data-error="email"></span>
-          </label>
-          <label>
-            Senha
-            <input name="senha" type="password" value="123456" autocomplete="current-password" required />
-            <span class="error" data-error="senha"></span>
-          </label>
-          <button type="submit">Entrar</button>
-        </form>
-        <div class="auth-actions">
-          <button class="secondary" id="googleDemoLogin">Entrar com Google demo</button>
-          <button class="ghost" id="toggleRegister">Criar usuario</button>
-        </div>
-        <form id="registerForm" class="auth-form hidden">
-          <label>
-            Nome
-            <input name="nome" autocomplete="name" />
-            <span class="error" data-error="nome"></span>
-          </label>
-          <label>
-            E-mail
-            <input name="email" type="email" autocomplete="email" />
-            <span class="error" data-error="email"></span>
-          </label>
-          <label>
-            Senha
-            <input name="senha" type="password" autocomplete="new-password" />
-            <span class="error" data-error="senha"></span>
-          </label>
-          <button type="submit">Cadastrar e entrar</button>
-        </form>
+      <section class="auth-layout">
+        <aside class="auth-visual" aria-label="Controle de estoque">
+          <div>
+            <p class="eyebrow">Projeto Integrador Full Stack</p>
+            <h1>Sistema de Controle de Estoque</h1>
+            <p>Produtos, fornecedores, associacoes e relatorios no mesmo painel.</p>
+          </div>
+          <img src="/assets/auth-estoque.svg" alt="Prateleiras de estoque com caixas e cadastro" />
+          <div class="auth-visual-footer">
+            <span>NF-e</span>
+            <span>Codigo de barras</span>
+            <span>Mockups</span>
+          </div>
+        </aside>
+
+        <section class="auth-card">
+          <p class="eyebrow">Acesso ao sistema</p>
+          <h2>Entrar ou criar usuario</h2>
+          <div class="auth-switch" role="tablist" aria-label="Alternar entre login e cadastro">
+            <button class="auth-tab active" type="button" data-auth-mode="login" role="tab" aria-selected="true">Login</button>
+            <button class="auth-tab" type="button" data-auth-mode="register" role="tab" aria-selected="false">Cadastro</button>
+          </div>
+
+          <form id="loginForm" class="auth-form auth-panel active" data-auth-panel="login">
+            <label>
+              E-mail
+              <input name="email" type="email" value="admin@estoque.local" autocomplete="email" required />
+              <span class="error" data-error="email"></span>
+            </label>
+            <label>
+              Senha
+              <input name="senha" type="password" value="123456" autocomplete="current-password" required />
+              <span class="error" data-error="senha"></span>
+            </label>
+            <button type="submit">Entrar</button>
+            <button class="secondary" type="button" id="googleDemoLogin">Entrar com Google demo</button>
+          </form>
+
+          <form id="registerForm" class="auth-form auth-panel" data-auth-panel="register">
+            <label>
+              Nome
+              <input name="nome" autocomplete="name" />
+              <span class="error" data-error="nome"></span>
+            </label>
+            <label>
+              E-mail
+              <input name="email" type="email" autocomplete="email" />
+              <span class="error" data-error="email"></span>
+            </label>
+            <label>
+              Senha
+              <input name="senha" type="password" autocomplete="new-password" />
+              <span class="error" data-error="senha"></span>
+            </label>
+            <button type="submit">Cadastrar e entrar</button>
+          </form>
+        </section>
       </section>
     </main>
 
@@ -472,6 +491,17 @@
     </div>
 
     <div class="alert-stack" id="alertStack" aria-live="polite"></div>
+    <div class="auth-error-modal hidden" id="authErrorModal" role="dialog" aria-modal="true" aria-labelledby="authErrorTitle">
+      <div class="auth-error-card">
+        <div class="auth-error-icon">!</div>
+        <div>
+          <p class="eyebrow">Acesso negado</p>
+          <h2 id="authErrorTitle">Senha ou e-mail incorretos</h2>
+          <p id="authErrorMessage">Confira os dados informados e tente novamente.</p>
+        </div>
+        <button type="button" id="authErrorClose">Entendi</button>
+      </div>
+    </div>
     <div class="success-modal hidden" id="successModal" role="dialog" aria-modal="true">
       <div class="success-card">
         <div class="success-icon">OK</div>

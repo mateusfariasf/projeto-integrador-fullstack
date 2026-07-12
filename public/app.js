@@ -59,7 +59,13 @@ function setupAuth() {
   $("#registerForm").addEventListener("submit", register);
   $("#googleDemoLogin").addEventListener("click", googleDemoLogin);
   $("#logoutButton").addEventListener("click", logout);
-  $("#toggleRegister").addEventListener("click", () => $("#registerForm").classList.toggle("hidden"));
+  $("#authErrorClose").addEventListener("click", closeAuthErrorModal);
+  $("#authErrorModal").addEventListener("click", (event) => {
+    if (event.target.id === "authErrorModal") closeAuthErrorModal();
+  });
+  $$(".auth-tab").forEach((button) => {
+    button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
+  });
 }
 
 function setupForms() {
@@ -108,10 +114,9 @@ async function login(event) {
     showApp();
     await loadAll();
     applyRouteFromHash();
-    showSuccessModal("Login realizado", "Acesso autorizado ao sistema de controle de estoque.", "Autenticacao");
   } catch (error) {
     showErrors("#loginForm", error.data?.errors);
-    showAlert(error.message, "danger");
+    showAuthError(error.message || "Senha ou e-mail incorretos.");
   }
 }
 
@@ -139,9 +144,8 @@ async function googleDemoLogin() {
     showApp();
     await loadAll();
     applyRouteFromHash();
-    showSuccessModal("Login Google demo", "Sessao demonstrativa criada com sucesso.", "Autenticacao");
   } catch (error) {
-    showAlert(error.message, "danger");
+    showAuthError(error.message || "Nao foi possivel criar o login demonstrativo.");
   }
 }
 
@@ -869,6 +873,7 @@ function clearSession() {
 function showAuth() {
   $("#authScreen").classList.remove("hidden");
   $("#appShell").classList.add("hidden");
+  setAuthMode("login");
 }
 
 function showApp() {
@@ -891,6 +896,27 @@ function applySidebarState() {
     toggle.title = label;
     toggle.setAttribute("aria-label", label);
   }
+}
+
+function setAuthMode(mode) {
+  const selected = mode === "register" ? "register" : "login";
+  $$(".auth-tab").forEach((button) => {
+    const active = button.dataset.authMode === selected;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  $$(".auth-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.authPanel === selected);
+  });
+}
+
+function showAuthError(message) {
+  $("#authErrorMessage").textContent = message || "Confira os dados informados e tente novamente.";
+  $("#authErrorModal").classList.remove("hidden");
+}
+
+function closeAuthErrorModal() {
+  $("#authErrorModal").classList.add("hidden");
 }
 
 function fillForm(form, data) {
