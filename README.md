@@ -148,6 +148,28 @@ Documentos de apoio:
 
 - `docs/arquitetura-modular.md`
 - `docs/revisao-5-periodo.md`
+- `docs/arquitetura.md`
+- `docs/modular-review.md`
+- `docs/code-review.md`
+- `docs/plano-de-testes.md`
+- `docs/revisao-dados.md`
+- `docs/checklist-entrega.md`
+
+## Qualidade e Revisao
+
+Execute a validacao completa:
+
+```bash
+npm run quality
+```
+
+Ou rode cada etapa separadamente:
+
+```bash
+npm test
+npm run review:code
+npm run review:data
+```
 
 ## Exemplos Para Insomnia ou Postman
 

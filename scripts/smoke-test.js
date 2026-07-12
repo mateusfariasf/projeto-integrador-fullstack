@@ -51,6 +51,12 @@ async function request(baseUrl, path, options = {}) {
   const bloqueado = await request(baseUrl, "/api/fornecedores");
   assert.equal(bloqueado.status, 401);
 
+  const loginInvalido = await request(baseUrl, "/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: "admin@estoque.local", senha: "senha-errada" })
+  });
+  assert.equal(loginInvalido.status, 401);
+
   const login = await request(baseUrl, "/api/auth/login", {
     method: "POST",
     body: JSON.stringify({ email: "admin@estoque.local", senha: "123456" })
@@ -60,6 +66,19 @@ async function request(baseUrl, path, options = {}) {
   token = login.data.token;
 
   const authHeaders = { Authorization: `Bearer ${token}` };
+
+  const novoUsuario = await request(baseUrl, "/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ nome: "Usuario Teste", email: "usuario.teste@estoque.local", senha: "123456" })
+  });
+  assert.equal(novoUsuario.status, 201);
+  assert.ok(novoUsuario.data.token);
+
+  const usuarioDuplicado = await request(baseUrl, "/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ nome: "Usuario Teste", email: "usuario.teste@estoque.local", senha: "123456" })
+  });
+  assert.equal(usuarioDuplicado.status, 409);
 
   const fornecedor = await request(baseUrl, "/api/fornecedores", {
     method: "POST",
@@ -76,6 +95,42 @@ async function request(baseUrl, path, options = {}) {
   });
   assert.equal(fornecedorDuplicado.status, 409);
 
+  const fornecedorTemporario = await request(baseUrl, "/api/fornecedores", {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      nomeEmpresa: "Fornecedor Temporario",
+      cnpj: "44.555.666/0001-77",
+      endereco: "Rua Temporaria, 10",
+      telefone: "(61) 3000-0000",
+      email: "temporario@fornecedor.local",
+      contatoPrincipal: "Teste Temporario"
+    })
+  });
+  assert.equal(fornecedorTemporario.status, 201);
+  const fornecedorTemporarioId = fornecedorTemporario.data.fornecedor.id;
+
+  const fornecedorAtualizado = await request(baseUrl, `/api/fornecedores/${fornecedorTemporarioId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      nomeEmpresa: "Fornecedor Temporario Atualizado",
+      cnpj: "44.555.666/0001-77",
+      endereco: "Rua Temporaria, 20",
+      telefone: "(61) 3000-1111",
+      email: "temporario.atualizado@fornecedor.local",
+      contatoPrincipal: "Teste Atualizado"
+    })
+  });
+  assert.equal(fornecedorAtualizado.status, 200);
+  assert.equal(fornecedorAtualizado.data.fornecedor.nomeEmpresa, "Fornecedor Temporario Atualizado");
+
+  const fornecedorRemovido = await request(baseUrl, `/api/fornecedores/${fornecedorTemporarioId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  assert.equal(fornecedorRemovido.status, 200);
+
   const produto = await request(baseUrl, "/api/produtos", {
     method: "POST",
     headers: authHeaders,
@@ -83,6 +138,46 @@ async function request(baseUrl, path, options = {}) {
   });
   assert.equal(produto.status, 201);
   assert.equal(produto.data.mensagem, "Produto cadastrado com sucesso!");
+
+  const produtoTemporario = await request(baseUrl, "/api/produtos", {
+    method: "POST",
+    headers: authHeaders,
+    body: JSON.stringify({
+      nome: "Produto Temporario",
+      codigoBarras: "7899999999991",
+      descricao: "Produto usado para testar atualizacao e exclusao",
+      preco: 10,
+      quantidade: 2,
+      categoria: "Teste",
+      dataValidade: "",
+      imagem: ""
+    })
+  });
+  assert.equal(produtoTemporario.status, 201);
+  const produtoTemporarioId = produtoTemporario.data.produto.id;
+
+  const produtoAtualizado = await request(baseUrl, `/api/produtos/${produtoTemporarioId}`, {
+    method: "PUT",
+    headers: authHeaders,
+    body: JSON.stringify({
+      nome: "Produto Temporario Atualizado",
+      codigoBarras: "7899999999991",
+      descricao: "Produto temporario atualizado",
+      preco: 12.5,
+      quantidade: 8,
+      categoria: "Teste",
+      dataValidade: "",
+      imagem: ""
+    })
+  });
+  assert.equal(produtoAtualizado.status, 200);
+  assert.equal(produtoAtualizado.data.produto.quantidade, 8);
+
+  const produtoRemovido = await request(baseUrl, `/api/produtos/${produtoTemporarioId}`, {
+    method: "DELETE",
+    headers: authHeaders
+  });
+  assert.equal(produtoRemovido.status, 200);
 
   const associacao = await request(baseUrl, "/api/produtos/1/fornecedores/1", { method: "POST", headers: authHeaders });
   assert.equal(associacao.status, 201);
