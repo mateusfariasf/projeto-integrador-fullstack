@@ -102,6 +102,9 @@ function setupForms() {
   $("#exportPdf").addEventListener("click", exportarPdf);
   $("#reportFilters").addEventListener("input", () => renderRelatorios());
   $("#reportFilters").addEventListener("change", () => renderRelatorios());
+  $("#exportProdutosExcel").addEventListener("click", exportarProdutosExcel);
+  $("#exportFornecedoresExcel").addEventListener("click", exportarFornecedoresExcel);
+  $("#exportAssociacoesExcel").addEventListener("click", exportarAssociacoesExcel);
   $("#limparFiltrosRelatorio").addEventListener("click", () => {
     $("#reportFilters").reset();
     renderRelatorios();
@@ -395,11 +398,7 @@ async function saveAssociacao(event) {
 
 function renderProdutos() {
   const tbody = $("#produtosTabela");
-  const term = normalize($("#produtoBusca").value);
-  const produtos = state.produtos.filter((item) => {
-    const haystack = normalize(`${item.nome} ${item.codigoBarras} ${item.categoria} ${item.descricao}`);
-    return haystack.includes(term);
-  });
+  const produtos = getProdutosVisiveis();
 
   tbody.innerHTML = produtos.length
     ? produtos.map((item) => `
@@ -418,6 +417,14 @@ function renderProdutos() {
       </tr>
     `).join("")
     : `<tr><td colspan="5" class="muted">Nenhum produto encontrado.</td></tr>`;
+}
+
+function getProdutosVisiveis() {
+  const term = normalize($("#produtoBusca").value);
+  return state.produtos.filter((item) => {
+    const haystack = normalize(`${item.nome} ${item.codigoBarras} ${item.categoria} ${item.descricao}`);
+    return haystack.includes(term);
+  });
 }
 
 function renderFornecedores() {
@@ -708,6 +715,68 @@ function exportarExcel() {
   `;
   downloadBlob(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }), `relatorio-estoque-${dateStamp()}.xls`);
   showAlert("Arquivo Excel gerado com sucesso.", "success");
+}
+
+function exportarProdutosExcel() {
+  const produtos = getProdutosVisiveis();
+  exportExcelWorkbook("Produtos", [
+    {
+      title: "Produtos",
+      rows: [["Nome", "Codigo", "Categoria", "Quantidade", "Preco", "Descricao", "Validade"], ...produtos.map((item) => [
+        item.nome,
+        item.codigoBarras,
+        item.categoria,
+        item.quantidade,
+        Number(item.preco || 0).toFixed(2),
+        item.descricao,
+        item.dataValidade || ""
+      ])]
+    }
+  ], "produtos");
+}
+
+function exportarFornecedoresExcel() {
+  exportExcelWorkbook("Fornecedores", [
+    {
+      title: "Fornecedores",
+      rows: [["Empresa", "CNPJ", "Contato", "Telefone", "E-mail", "Endereco"], ...state.fornecedores.map((item) => [
+        item.nomeEmpresa,
+        item.cnpj,
+        item.contatoPrincipal,
+        item.telefone,
+        item.email,
+        item.endereco
+      ])]
+    }
+  ], "fornecedores");
+}
+
+function exportarAssociacoesExcel() {
+  exportExcelWorkbook("Associacoes", [
+    {
+      title: "Associacoes",
+      rows: [["Produto", "Codigo", "Fornecedor", "CNPJ"], ...state.associacoes.map((item) => [
+        item.produtoNome,
+        item.codigoBarras,
+        item.nomeEmpresa,
+        item.cnpj
+      ])]
+    }
+  ], "associacoes");
+}
+
+function exportExcelWorkbook(title, sheets, filenamePrefix) {
+  const html = `
+    <html>
+      <head><meta charset="UTF-8" /></head>
+      <body>
+        <h1>${escapeHtml(title)}</h1>
+        ${sheets.map((sheet) => tableToHtml(sheet.title, sheet.rows)).join("")}
+      </body>
+    </html>
+  `;
+  downloadBlob(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }), `${filenamePrefix}-${dateStamp()}.xls`);
+  showAlert(`${title} exportado(s) com sucesso.`, "success");
 }
 
 function exportarPdf() {

@@ -43,9 +43,9 @@
               <input name="senha" type="password" value="123456" autocomplete="current-password" required />
               <span class="error" data-error="senha"></span>
             </label>
+            <button class="forgot-link" type="button" id="forgotPasswordButton">Recuperar senha</button>
             <button type="submit">Entrar</button>
             <button class="secondary" type="button" id="googleDemoLogin">Entrar com Google demo</button>
-            <button class="ghost" type="button" id="forgotPasswordButton">Recuperar senha</button>
           </form>
 
           <form id="registerForm" class="auth-form auth-panel" data-auth-panel="register">
@@ -147,7 +147,12 @@
               <p class="eyebrow">Estoque</p>
               <h2>Produtos</h2>
             </div>
-            <button class="secondary" id="limparProduto">Novo produto</button>
+            <div class="heading-actions">
+              <button class="secondary icon-only" id="exportProdutosExcel" type="button" title="Exportar produtos para Excel" aria-label="Exportar produtos para Excel">
+                <span class="nav-icon download-icon" aria-hidden="true"></span>
+              </button>
+              <button class="secondary" id="limparProduto">Novo produto</button>
+            </div>
           </div>
 
           <div class="workbench">
@@ -204,7 +209,12 @@
               <p class="eyebrow">Cadastro</p>
               <h2>Fornecedores</h2>
             </div>
-            <button class="secondary" id="limparFornecedor">Novo fornecedor</button>
+            <div class="heading-actions">
+              <button class="secondary icon-only" id="exportFornecedoresExcel" type="button" title="Exportar fornecedores para Excel" aria-label="Exportar fornecedores para Excel">
+                <span class="nav-icon download-icon" aria-hidden="true"></span>
+              </button>
+              <button class="secondary" id="limparFornecedor">Novo fornecedor</button>
+            </div>
           </div>
 
           <div class="workbench">
@@ -242,7 +252,12 @@
               <p class="eyebrow">Relacionamento</p>
               <h2>Associacoes</h2>
             </div>
-            <button class="secondary" id="novaAssociacao">Nova associacao</button>
+            <div class="heading-actions">
+              <button class="secondary icon-only" id="exportAssociacoesExcel" type="button" title="Exportar associacoes para Excel" aria-label="Exportar associacoes para Excel">
+                <span class="nav-icon download-icon" aria-hidden="true"></span>
+              </button>
+              <button class="secondary" id="novaAssociacao">Nova associacao</button>
+            </div>
           </div>
 
           <div class="workbench">

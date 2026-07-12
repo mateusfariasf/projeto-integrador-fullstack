@@ -47,6 +47,7 @@ O arquivo `scripts/smoke-test.js` valida:
 12. Usar `Baixar PDF` e validar download do arquivo `.pdf`.
 13. Abrir `Recuperar senha` na tela de login e validar o modal demonstrativo.
 14. Abrir `Notificacoes` e clicar fora para validar fechamento automatico.
+15. Usar os botoes de download nas tabelas de produtos, fornecedores e associacoes.
 
 ## Criterio de aceite
 

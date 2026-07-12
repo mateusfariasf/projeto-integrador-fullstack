@@ -146,6 +146,23 @@ textarea {
   display: grid;
 }
 
+.forgot-link {
+  justify-self: end;
+  min-height: auto;
+  margin-top: -6px;
+  padding: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.forgot-link:hover {
+  background: transparent;
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -370,6 +387,25 @@ button {
   right: 0;
   width: 10px;
   border-top: 2px solid currentColor;
+}
+
+.download-icon::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 9px;
+  height: 11px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+.download-icon::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  width: 16px;
+  border-bottom: 2px solid currentColor;
 }
 
 .app-shell.sidebar-collapsed .app-sidebar {
@@ -620,6 +656,13 @@ button.danger {
   margin-bottom: 14px;
 }
 
+.heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .module-heading h2 {
   margin: 4px 0 0;
   font-size: 1.35rem;
@@ -725,6 +768,15 @@ textarea:focus {
 
 .icon-button {
   min-width: 64px;
+}
+
+.icon-only {
+  display: grid;
+  width: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  place-items: center;
+  padding: 0;
 }
 
 .error {
@@ -1371,6 +1423,10 @@ dd {
   .app-topbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .heading-actions {
+    justify-content: stretch;
   }
 
   .topbar-actions,

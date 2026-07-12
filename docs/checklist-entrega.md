@@ -16,6 +16,7 @@
 - [x] Graficos de BI.
 - [x] Exportacao em Excel.
 - [x] Exportacao em PDF.
+- [x] Exportacao Excel de produtos, fornecedores e associacoes.
 
 ## Arquitetura
 

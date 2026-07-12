@@ -28,6 +28,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Modal de confirmacao para cadastros, importacoes e associacoes.
 - Aba de relatorios com filtros, totais, valor estimado, categorias, baixo estoque e graficos de BI.
 - Exportacao de relatorios em Excel e PDF.
+- Exportacao das tabelas de produtos, fornecedores e associacoes em Excel.
 - Botao para carregar mockups diretamente pela interface.
 - Associacao e desassociacao entre produtos e fornecedores.
 - Consulta visual das associacoes produto/fornecedor.
