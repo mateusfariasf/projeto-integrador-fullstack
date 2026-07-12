@@ -66,6 +66,10 @@ assert.match(securitySource, /timingSafeEqual/, "Comparacao de senha deve usar c
 const appSource = fs.readFileSync(path.join(root, "public/app.js"), "utf8");
 assert.match(appSource, /openProdutoModal/, "Produto deve usar modal para cadastro/edicao.");
 assert.match(appSource, /renderReportCharts/, "Relatorios devem possuir graficos de BI.");
+assert.match(appSource, /exportarExcel/, "Relatorios devem possuir exportacao em Excel.");
+assert.match(appSource, /exportarPdf/, "Relatorios devem possuir exportacao em PDF.");
+assert.match(appSource, /openPasswordRecoveryModal/, "Login deve possuir recuperacao de senha demonstrativa.");
+assert.match(appSource, /closeNotificationsOnOutsideClick/, "Notificacoes devem fechar ao clicar fora.");
 
 let trackedFiles = [];
 try {

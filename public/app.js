@@ -58,6 +58,12 @@ function setupAuth() {
   $("#loginForm").addEventListener("submit", login);
   $("#registerForm").addEventListener("submit", register);
   $("#googleDemoLogin").addEventListener("click", googleDemoLogin);
+  $("#forgotPasswordButton").addEventListener("click", openPasswordRecoveryModal);
+  $("#passwordRecoveryForm").addEventListener("submit", submitPasswordRecovery);
+  $("#passwordRecoveryCancel").addEventListener("click", closePasswordRecoveryModal);
+  $("#passwordRecoveryModal").addEventListener("click", (event) => {
+    if (event.target.id === "passwordRecoveryModal") closePasswordRecoveryModal();
+  });
   $("#logoutButton").addEventListener("click", logout);
   $("#authErrorClose").addEventListener("click", closeAuthErrorModal);
   $("#authErrorModal").addEventListener("click", (event) => {
@@ -92,6 +98,8 @@ function setupForms() {
   $("#produtoBusca").addEventListener("input", () => renderProdutos());
   $("#importarNotaButton").addEventListener("click", importarNotaFiscal);
   $("#carregarMockups").addEventListener("click", carregarMockups);
+  $("#exportExcel").addEventListener("click", exportarExcel);
+  $("#exportPdf").addEventListener("click", exportarPdf);
   $("#reportFilters").addEventListener("input", () => renderRelatorios());
   $("#reportFilters").addEventListener("change", () => renderRelatorios());
   $("#limparFiltrosRelatorio").addEventListener("click", () => {
@@ -103,6 +111,13 @@ function setupForms() {
     showAlert("Relatorios atualizados com os dados mais recentes.", "success");
   });
   $("#successClose").addEventListener("click", closeSuccessModal);
+  document.addEventListener("click", closeNotificationsOnOutsideClick);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closePasswordRecoveryModal();
+      closeNotifications();
+    }
+  });
 }
 
 function setupSidebar() {
@@ -162,6 +177,28 @@ async function googleDemoLogin() {
   } catch (error) {
     showAuthError(error.message || "Nao foi possivel criar o login demonstrativo.");
   }
+}
+
+function openPasswordRecoveryModal() {
+  const form = $("#passwordRecoveryForm");
+  form.reset();
+  form.elements.email.value = $("#loginForm input[name='email']").value || "";
+  $("#passwordRecoveryModal").classList.remove("hidden");
+}
+
+function closePasswordRecoveryModal() {
+  $("#passwordRecoveryModal").classList.add("hidden");
+}
+
+function submitPasswordRecovery(event) {
+  event.preventDefault();
+  const email = new FormData(event.currentTarget).get("email");
+  closePasswordRecoveryModal();
+  showSuccessModal(
+    "Recuperacao solicitada",
+    `Se este e-mail estiver cadastrado, as instrucoes de recuperacao seriam enviadas para ${email}.`,
+    "Modulo demonstrativo"
+  );
 }
 
 async function logout() {
@@ -626,6 +663,106 @@ function renderReportCharts(produtosFiltrados, categorias, baixoEstoque) {
     : `<p class="muted">Sem produtos para ranquear.</p>`;
 }
 
+function exportarExcel() {
+  const produtos = getProdutosFiltradosRelatorio();
+  const produtoIds = new Set(produtos.map((item) => item.id));
+  const associacoes = state.associacoes.filter((item) => produtoIds.has(item.produtoId));
+  const resumo = buildReportSummary(produtos, associacoes);
+  const html = `
+    <html>
+      <head><meta charset="UTF-8" /></head>
+      <body>
+        <h1>Relatorio de Estoque</h1>
+        ${tableToHtml("Resumo", [
+          ["Indicador", "Valor"],
+          ["Produtos", resumo.totalProdutos],
+          ["Fornecedores", resumo.totalFornecedores],
+          ["Associacoes", resumo.totalAssociacoes],
+          ["Unidades", resumo.totalUnidades],
+          ["Valor estimado", resumo.valorEstoque.toFixed(2)],
+          ["Baixo estoque", resumo.baixoEstoque]
+        ])}
+        ${tableToHtml("Produtos", [["Nome", "Codigo", "Categoria", "Quantidade", "Preco", "Descricao"], ...produtos.map((item) => [
+          item.nome,
+          item.codigoBarras,
+          item.categoria,
+          item.quantidade,
+          Number(item.preco || 0).toFixed(2),
+          item.descricao
+        ])])}
+        ${tableToHtml("Fornecedores", [["Empresa", "CNPJ", "Contato", "Telefone", "E-mail"], ...state.fornecedores.map((item) => [
+          item.nomeEmpresa,
+          item.cnpj,
+          item.contatoPrincipal,
+          item.telefone,
+          item.email
+        ])])}
+        ${tableToHtml("Associacoes", [["Produto", "Codigo", "Fornecedor", "CNPJ"], ...associacoes.map((item) => [
+          item.produtoNome,
+          item.codigoBarras,
+          item.nomeEmpresa,
+          item.cnpj
+        ])])}
+      </body>
+    </html>
+  `;
+  downloadBlob(new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" }), `relatorio-estoque-${dateStamp()}.xls`);
+  showAlert("Arquivo Excel gerado com sucesso.", "success");
+}
+
+function exportarPdf() {
+  const produtos = getProdutosFiltradosRelatorio();
+  const produtoIds = new Set(produtos.map((item) => item.id));
+  const associacoes = state.associacoes.filter((item) => produtoIds.has(item.produtoId));
+  const resumo = buildReportSummary(produtos, associacoes);
+  const topProdutos = [...produtos]
+    .sort((a, b) => (Number(b.preco || 0) * Number(b.quantidade || 0)) - (Number(a.preco || 0) * Number(a.quantidade || 0)))
+    .slice(0, 8);
+  const lines = [
+    "Relatorio de Estoque",
+    `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
+    "",
+    `Produtos: ${resumo.totalProdutos}`,
+    `Fornecedores: ${resumo.totalFornecedores}`,
+    `Associacoes: ${resumo.totalAssociacoes}`,
+    `Unidades em estoque: ${resumo.totalUnidades}`,
+    `Valor estimado: R$ ${resumo.valorEstoque.toFixed(2)}`,
+    `Produtos em baixo estoque: ${resumo.baixoEstoque}`,
+    "",
+    "Produtos com maior valor em estoque:",
+    ...topProdutos.map((item, index) => {
+      const valor = Number(item.preco || 0) * Number(item.quantidade || 0);
+      return `${index + 1}. ${item.nome} - ${item.quantidade} un. - R$ ${valor.toFixed(2)}`;
+    }),
+    "",
+    "Observacao: PDF demonstrativo gerado pelo modulo de exportacao do sistema."
+  ];
+  downloadBlob(createPdfBlob(lines), `relatorio-estoque-${dateStamp()}.pdf`);
+  showAlert("Arquivo PDF gerado com sucesso.", "success");
+}
+
+function buildReportSummary(produtos, associacoes) {
+  return {
+    totalProdutos: produtos.length,
+    totalFornecedores: state.fornecedores.length,
+    totalAssociacoes: associacoes.length,
+    totalUnidades: produtos.reduce((sum, item) => sum + Number(item.quantidade || 0), 0),
+    valorEstoque: produtos.reduce((sum, item) => sum + Number(item.preco || 0) * Number(item.quantidade || 0), 0),
+    baixoEstoque: produtos.filter((item) => Number(item.quantidade || 0) <= 5).length
+  };
+}
+
+function tableToHtml(title, rows) {
+  return `
+    <h2>${escapeHtml(title)}</h2>
+    <table border="1">
+      ${rows.map((row, index) => `
+        <tr>${row.map((cell) => `${index === 0 ? "<th>" : "<td>"}${escapeHtml(cell)}${index === 0 ? "</th>" : "</td>"}`).join("")}</tr>
+      `).join("")}
+    </table>
+  `;
+}
+
 function renderReportCategoryOptions() {
   const select = $("#reportCategoria");
   if (!select) return;
@@ -1050,11 +1187,18 @@ function showAuth() {
 function showApp() {
   $("#authScreen").classList.add("hidden");
   $("#appShell").classList.remove("hidden");
+  resetRouteHistory();
   const name = state.usuario?.nome || "Usuario";
   $("#userName").textContent = name;
   $("#userProvider").textContent = state.usuario?.provedor || "local";
   $("#userAvatar").textContent = name.slice(0, 1).toUpperCase();
   applySidebarState();
+}
+
+function resetRouteHistory() {
+  state.routeHistory = [];
+  sessionStorage.removeItem("estoqueRouteHistory");
+  renderRouteHistory();
 }
 
 function applySidebarState() {
@@ -1088,6 +1232,17 @@ function showAuthError(message) {
 
 function closeAuthErrorModal() {
   $("#authErrorModal").classList.add("hidden");
+}
+
+function closeNotificationsOnOutsideClick(event) {
+  const panel = $("#notificationsPanel");
+  if (!panel || !panel.open) return;
+  if (!panel.contains(event.target)) panel.open = false;
+}
+
+function closeNotifications() {
+  const panel = $("#notificationsPanel");
+  if (panel) panel.open = false;
 }
 
 function fillForm(form, data) {
@@ -1230,6 +1385,76 @@ function formatPhone(value) {
 
 function toNumber(value) {
   return Number(String(value || "0").replace(",", "."));
+}
+
+function downloadBlob(blob, filename) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+function createPdfBlob(lines) {
+  const safeLines = lines.flatMap((line) => wrapText(toPdfText(line), 86));
+  const content = [
+    "BT",
+    "/F1 12 Tf",
+    "50 790 Td",
+    "16 TL",
+    ...safeLines.map((line, index) => `${index === 0 ? "" : "T*"}(${escapePdf(line)}) Tj`),
+    "ET"
+  ].join("\n");
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
+  ];
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return new Blob([pdf], { type: "application/pdf" });
+}
+
+function wrapText(text, maxLength) {
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let current = "";
+  words.forEach((word) => {
+    if (`${current} ${word}`.trim().length > maxLength) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = `${current} ${word}`.trim();
+    }
+  });
+  if (current) lines.push(current);
+  return lines.length ? lines : [""];
+}
+
+function toPdfText(value) {
+  return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function escapePdf(value) {
+  return String(value).replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)");
+}
+
+function dateStamp() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function showAlert(message, type = "info") {

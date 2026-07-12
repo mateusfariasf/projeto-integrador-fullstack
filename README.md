@@ -10,6 +10,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 
 - Login com usuario local e sessao por token.
 - Botao de login Google em modo demonstrativo local.
+- Recuperacao de senha demonstrativa por e-mail.
 - Cadastro, listagem, edicao e exclusao de fornecedores.
 - Validacao de CNPJ unico para fornecedores.
 - Cadastro, listagem, edicao e exclusao de produtos.
@@ -26,6 +27,7 @@ Aplicacao full stack desenvolvida em Node.js, SQLite e frontend web para atender
 - Cards flutuantes animados para erros e avisos.
 - Modal de confirmacao para cadastros, importacoes e associacoes.
 - Aba de relatorios com filtros, totais, valor estimado, categorias, baixo estoque e graficos de BI.
+- Exportacao de relatorios em Excel e PDF.
 - Botao para carregar mockups diretamente pela interface.
 - Associacao e desassociacao entre produtos e fornecedores.
 - Consulta visual das associacoes produto/fornecedor.

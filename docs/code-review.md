@@ -18,6 +18,9 @@ Nenhum bloqueador critico foi identificado na revisao final. O projeto esta func
 | Dados locais fora do Git | Aprovado | `.gitignore` ignora `data/`, `*.log`, `.env` e `node_modules/` |
 | UI de edicao | Aprovado | Produtos, fornecedores e associacoes usam modais |
 | BI e relatorios | Aprovado | Relatorios possuem KPIs, filtros, graficos e snapshots documentais |
+| Exportacao | Aprovado | Relatorios possuem exportacao em Excel e PDF |
+| Recuperacao de senha | Aprovado | Login possui modulo demonstrativo de recuperacao por e-mail |
+| Notificacoes | Aprovado | Painel fecha automaticamente ao clicar fora |
 
 ## Observacoes tecnicas
 

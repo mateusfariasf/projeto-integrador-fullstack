@@ -43,6 +43,10 @@ O arquivo `scripts/smoke-test.js` valida:
 8. Criar associacao pelo modal.
 9. Importar `sample-data/nfe-exemplo.xml`.
 10. Acessar a aba `Relatorios` e conferir filtros, cards e graficos.
+11. Usar `Exportar Excel` e validar download do arquivo `.xls`.
+12. Usar `Baixar PDF` e validar download do arquivo `.pdf`.
+13. Abrir `Recuperar senha` na tela de login e validar o modal demonstrativo.
+14. Abrir `Notificacoes` e clicar fora para validar fechamento automatico.
 
 ## Criterio de aceite
 

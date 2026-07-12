@@ -884,6 +884,12 @@ dd {
   gap: 8px;
 }
 
+.export-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
 .activity-item {
   display: grid;
   gap: 3px;
@@ -1266,6 +1272,18 @@ dd {
   color: var(--danger);
 }
 
+.recovery-card {
+  width: min(560px, 100%);
+}
+
+.recovery-card .auth-form {
+  gap: 14px;
+}
+
+.recovery-card button {
+  grid-column: auto;
+}
+
 .success-card h2,
 .success-card p,
 .auth-error-card h2,
@@ -1339,6 +1357,7 @@ dd {
 
 @media (max-width: 760px) {
   .auth-switch,
+  .export-actions,
   .form-grid,
   .tabs,
   .sidebar-footer,

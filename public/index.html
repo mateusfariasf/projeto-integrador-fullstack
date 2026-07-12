@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Controle de Estoque</title>
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -44,6 +45,7 @@
             </label>
             <button type="submit">Entrar</button>
             <button class="secondary" type="button" id="googleDemoLogin">Entrar com Google demo</button>
+            <button class="ghost" type="button" id="forgotPasswordButton">Recuperar senha</button>
           </form>
 
           <form id="registerForm" class="auth-form auth-panel" data-auth-panel="register">
@@ -129,7 +131,7 @@
           </div>
           <div class="topbar-actions">
             <div class="route-history" id="routeHistory"></div>
-            <details class="notifications">
+            <details class="notifications" id="notificationsPanel">
               <summary>
                 Notificacoes
                 <span id="notificationCount">0</span>
@@ -290,6 +292,14 @@
                 <h3>Mockups</h3>
                 <button type="button" id="carregarMockups">Carregar dados falsos</button>
                 <p class="muted compact-text">Popula produtos, fornecedores e associacoes para demonstracao.</p>
+              </section>
+              <section class="context-section">
+                <h3>Exportacao</h3>
+                <div class="export-actions">
+                  <button type="button" id="exportExcel">Exportar Excel</button>
+                  <button type="button" class="secondary" id="exportPdf">Baixar PDF</button>
+                </div>
+                <p class="muted compact-text">Exporta produtos, fornecedores, associacoes e indicadores filtrados do relatorio.</p>
               </section>
               <section class="context-section">
                 <h3>Filtros</h3>
@@ -563,6 +573,28 @@
     </div>
 
     <div class="alert-stack" id="alertStack" aria-live="polite"></div>
+    <div class="auth-error-modal hidden" id="passwordRecoveryModal" role="dialog" aria-modal="true" aria-labelledby="passwordRecoveryTitle">
+      <div class="auth-error-card recovery-card">
+        <div class="auth-error-icon">?</div>
+        <form id="passwordRecoveryForm" class="auth-form">
+          <div>
+            <p class="eyebrow">Recuperacao</p>
+            <h2 id="passwordRecoveryTitle">Recuperar senha por e-mail</h2>
+            <p class="muted">Modulo demonstrativo para simular o envio de instrucao de redefinicao.</p>
+          </div>
+          <label>
+            E-mail cadastrado
+            <input name="email" type="email" placeholder="seu-email@exemplo.com" required />
+          </label>
+          <div class="modal-actions">
+            <span></span>
+            <span></span>
+            <button type="button" class="secondary" id="passwordRecoveryCancel">Cancelar</button>
+            <button type="submit">Enviar</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <div class="auth-error-modal hidden" id="authErrorModal" role="dialog" aria-modal="true" aria-labelledby="authErrorTitle">
       <div class="auth-error-card">
         <div class="auth-error-icon">!</div>

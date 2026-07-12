@@ -5,6 +5,7 @@
 - [x] Login local.
 - [x] Cadastro de usuario.
 - [x] Login Google demonstrativo.
+- [x] Recuperacao de senha demonstrativa.
 - [x] CRUD de produtos.
 - [x] CRUD de fornecedores.
 - [x] Associacao produto/fornecedor.
@@ -13,6 +14,8 @@
 - [x] Mockups de dados.
 - [x] Relatorios com filtros.
 - [x] Graficos de BI.
+- [x] Exportacao em Excel.
+- [x] Exportacao em PDF.
 
 ## Arquitetura
 
