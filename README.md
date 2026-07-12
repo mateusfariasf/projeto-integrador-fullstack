@@ -111,6 +111,8 @@ Estas rotas foram separadas para avaliacao academica e nao exigem autenticacao:
 - `GET /api/public/fornecedores`
 - `GET /api/public/associacoes`
 - `GET /api/public/relatorios`
+- `GET /api/public/produtos/baixo-estoque`
+- `GET /api/public/categorias/resumo`
 
 As chamadas prontas para copiar no Insomnia estao em:
 

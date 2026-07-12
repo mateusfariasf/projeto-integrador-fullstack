@@ -265,6 +265,16 @@ async function request(baseUrl, path, options = {}) {
   assert.equal(publicRelatorio.status, 200);
   assert.ok(publicRelatorio.data.dados.indicadores.totalProdutos >= 5);
 
+  const publicBaixoEstoque = await request(baseUrl, "/api/public/produtos/baixo-estoque");
+  assert.equal(publicBaixoEstoque.status, 200);
+  assert.ok(publicBaixoEstoque.data.total >= 1);
+  assert.ok(publicBaixoEstoque.data.dados.every((produto) => Number(produto.quantidade) <= 5));
+
+  const publicCategorias = await request(baseUrl, "/api/public/categorias/resumo");
+  assert.equal(publicCategorias.status, 200);
+  assert.ok(publicCategorias.data.total >= 1);
+  assert.ok(publicCategorias.data.dados.every((categoria) => categoria.categoria));
+
   console.log("Smoke test concluido com sucesso.");
 })()
   .catch((error) => {

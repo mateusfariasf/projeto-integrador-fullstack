@@ -10,6 +10,20 @@ function handlePublicApi(res, db, method, parts) {
 
   ensurePublicDemoData(db);
 
+  if (parts[2] === "produtos" && parts[3] === "baixo-estoque") {
+    const produtos = estoqueService.listProdutos(db)
+      .filter((produto) => Number(produto.quantidade || 0) <= 5)
+      .sort((a, b) => Number(a.quantidade || 0) - Number(b.quantidade || 0));
+
+    sendJson(res, 200, {
+      descricao: "Produtos com baixo estoque para priorizacao de reposicao.",
+      criterio: "quantidade menor ou igual a 5 unidades",
+      total: produtos.length,
+      dados: produtos
+    });
+    return;
+  }
+
   if (parts[2] === "produtos") {
     sendJson(res, 200, {
       descricao: "Lista publica de produtos para avaliacao REST no Insomnia.",
@@ -33,6 +47,17 @@ function handlePublicApi(res, db, method, parts) {
       descricao: "Relacionamentos publicos entre produtos e fornecedores.",
       total: estoqueService.listAssociacoes(db).length,
       dados: estoqueService.listAssociacoes(db)
+    });
+    return;
+  }
+
+  if (parts[2] === "categorias" && parts[3] === "resumo") {
+    const relatorio = relatoriosService.gerarRelatorioEstoque(db, { persistirSnapshot: false });
+
+    sendJson(res, 200, {
+      descricao: "Resumo de estoque por categoria para apoio a inteligencia de negocio.",
+      total: relatorio.dimensoes.categorias.length,
+      dados: relatorio.dimensoes.categorias
     });
     return;
   }

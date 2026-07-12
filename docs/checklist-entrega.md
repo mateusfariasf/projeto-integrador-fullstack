@@ -19,6 +19,7 @@
 - [x] Exportacao Excel de produtos, fornecedores e associacoes.
 - [x] API REST publica sem autenticacao para avaliacao via Insomnia.
 - [x] Arquivo com chamadas prontas para Insomnia.
+- [x] Dois novos endpoints REST para a Fase 3.
 
 ## Arquitetura
 

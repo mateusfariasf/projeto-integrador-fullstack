@@ -22,6 +22,7 @@ Nenhum bloqueador critico foi identificado na revisao final. O projeto esta func
 | Recuperacao de senha | Aprovado | Login possui modulo demonstrativo de recuperacao por e-mail |
 | Notificacoes | Aprovado | Painel fecha automaticamente ao clicar fora |
 | Entrega REST | Aprovado | Rotas `GET /api/public/...` permitem avaliacao sem autenticacao no Insomnia |
+| Novos endpoints | Aprovado | Fase 3 possui chamadas publicas para baixo estoque e resumo por categoria |
 | Deploy | Aprovado | Projeto possui configuracao inicial para Replit com `npm start` |
 
 ## Observacoes tecnicas

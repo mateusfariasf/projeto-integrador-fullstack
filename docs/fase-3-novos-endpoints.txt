@@ -1,0 +1,19 @@
+Projeto Integrador Full Stack - Fase 3 - Novos endpoints REST
+
+URL base em producao:
+https://projeto-integrador-fullstack--mateusffrahi.replit.app
+
+1) Produtos com baixo estoque
+Metodo: GET
+URL: {{baseUrl}}/api/public/produtos/baixo-estoque
+Objetivo: listar produtos com quantidade menor ou igual a 5 unidades para apoiar a reposicao.
+Autenticacao: nao exige token.
+
+2) Resumo por categorias
+Metodo: GET
+URL: {{baseUrl}}/api/public/categorias/resumo
+Objetivo: consolidar quantidade, unidades e valor estimado por categoria para apoiar relatorios de inteligencia de negocio.
+Autenticacao: nao exige token.
+
+Observacao:
+As duas chamadas foram criadas apos a identificacao das necessidades de negocio da Fase 3 e podem ser testadas diretamente no Insomnia.

@@ -85,6 +85,8 @@ assert.match(publicSource, /api\/public\/produtos|produtos/, "API publica deve e
 assert.match(publicSource, /fornecedores/, "API publica deve expor fornecedores.");
 assert.match(publicSource, /associacoes/, "API publica deve expor associacoes.");
 assert.match(publicSource, /gerarRelatorioEstoque/, "API publica deve expor relatorio de BI.");
+assert.match(publicSource, /baixo-estoque/, "Fase 3 deve possuir endpoint novo de produtos com baixo estoque.");
+assert.match(publicSource, /categorias/, "Fase 3 deve possuir endpoint novo de resumo por categorias.");
 
 let trackedFiles = [];
 try {
